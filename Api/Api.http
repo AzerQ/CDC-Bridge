@@ -1,6 +1,22 @@
 @Api_HostAddress = http://localhost:5252
+@Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRlc3QgVXNlciIsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 
-GET {{Api_HostAddress}}/weatherforecast/
+### Получение списка источников
+GET {{Api_HostAddress}}/api/sources
 Accept: application/json
+Authorization: Bearer {{Token}}
 
-###
+### Загрузка плагина источника
+POST {{Api_HostAddress}}/api/sources?pluginName=SqlCdcSourcePlugin
+Accept: application/json
+Authorization: Bearer {{Token}}
+
+### Получение списка приемников
+GET {{Api_HostAddress}}/api/sinks
+Accept: application/json
+Authorization: Bearer {{Token}}
+
+### Загрузка плагина приемника
+POST {{Api_HostAddress}}/api/sinks?pluginName=WebhookSinkPlugin
+Accept: application/json
+Authorization: Bearer {{Token}}
