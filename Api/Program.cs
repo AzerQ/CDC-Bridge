@@ -2,6 +2,7 @@ using Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<CoreService>();
 
 var app = builder.Build();
+
+// Получаем экземпляр CoreService и запускаем его
+var coreService = app.Services.GetRequiredService<CoreService>();
+await coreService.StartAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
