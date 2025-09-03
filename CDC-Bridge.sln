@@ -3,25 +3,28 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Contracts", "Plugin.Contracts\Plugin.Contracts.csproj", "{387DEDAF-7801-4739-A6B1-E4BF0EE1BE69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Contracts", "Plugin.Contracts\Plugin.Contracts.csproj", "{387DEDAF-7801-4739-A6B1-E4BF0EE1BE69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{920F681A-240E-48AB-8364-6B02410CE4B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{920F681A-240E-48AB-8364-6B02410CE4B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcSourcePlugin", "CdcSourcePlugin\CdcSourcePlugin.csproj", "{E0B8E231-CAE5-42E8-B3BE-3C21E2D3E7A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CdcSourcePlugin", "CdcSourcePlugin\CdcSourcePlugin.csproj", "{E0B8E231-CAE5-42E8-B3BE-3C21E2D3E7A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebhookSinkPlugin", "WebhookSinkPlugin\WebhookSinkPlugin.csproj", "{FA11DEBB-97DA-4E24-AF67-E0013AF8C370}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebhookSinkPlugin", "WebhookSinkPlugin\WebhookSinkPlugin.csproj", "{FA11DEBB-97DA-4E24-AF67-E0013AF8C370}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{6D1EAF1F-95CF-4598-9DF3-75F6DA45E3DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{6D1EAF1F-95CF-4598-9DF3-75F6DA45E3DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{F51B3DFC-6702-4E92-8783-7765AB370B5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{F51B3DFC-6702-4E92-8783-7765AB370B5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExampleApp", "ExampleApp", "{9E95FAC6-A035-407B-8006-FA6D0A446889}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CdcGenerator", "ExampleApp\CdcGenerator\CdcGenerator.csproj", "{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CdcWebhookReceiver", "ExampleApp\CdcWebhookReceiver\CdcWebhookReceiver.csproj", "{0005045B-2B4A-4F47-AD9D-8A4B83184BFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{387DEDAF-7801-4739-A6B1-E4BF0EE1BE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -48,5 +51,23 @@ Global
 		{F51B3DFC-6702-4E92-8783-7765AB370B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F51B3DFC-6702-4E92-8783-7765AB370B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F51B3DFC-6702-4E92-8783-7765AB370B5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0005045B-2B4A-4F47-AD9D-8A4B83184BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0005045B-2B4A-4F47-AD9D-8A4B83184BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0005045B-2B4A-4F47-AD9D-8A4B83184BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0005045B-2B4A-4F47-AD9D-8A4B83184BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EFE2B16F-8507-4C47-987E-C0CCA07AF9BD} = {9E95FAC6-A035-407B-8006-FA6D0A446889}
+		{0005045B-2B4A-4F47-AD9D-8A4B83184BFD} = {9E95FAC6-A035-407B-8006-FA6D0A446889}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {611E474B-6D59-460B-8E52-DB1FA13322CC}
 	EndGlobalSection
 EndGlobal
