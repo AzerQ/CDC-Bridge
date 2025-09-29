@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using CdcBridge.Core.Models;
 
 namespace CdcBridge.Core.Abstractions;
@@ -7,8 +8,7 @@ namespace CdcBridge.Core.Abstractions;
 /// Интерфейс для фильтра событий изменений.
 /// Определяет контракт для отбора событий изменений на основе заданных условий.
 /// </summary>
-/// <typeparam name="TParameters">Тип параметров конфигурации фильтра.</typeparam>
-public interface IFilter<TParameters>
+public interface IFilter
 {
     /// <summary>
     /// Уникальное имя фильтра.
@@ -22,5 +22,5 @@ public interface IFilter<TParameters>
     /// <param name="trackedChange">Событие изменения для проверки.</param>
     /// <param name="parameters">Параметры конфигурации фильтра (например, выражения JsonPath, условия и т.д.).</param>
     /// <returns><c>true</c>, если событие соответствует условиям фильтра; иначе <c>false</c>.</returns>
-    public bool IsMatch(TrackedChange trackedChange, TParameters parameters);
+    public bool IsMatch(TrackedChange trackedChange, JsonElement parameters);
 }

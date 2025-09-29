@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace CdcBridge.Core.Models.Configuration;
@@ -59,6 +60,6 @@ public class Transformer
     /// }
     /// </code>
     /// </summary>
-    public JsonNode? Parameters { get; set; }
+    public JsonElement? Parameters { get; set; }
 
 }

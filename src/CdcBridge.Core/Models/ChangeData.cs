@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace CdcBridge.Core.Models;
@@ -10,10 +11,10 @@ public class ChangeData
     /// <summary>
     /// Снимок записи до изменения. Может быть <c>null</c> для операций вставки.
     /// </summary>
-    public JsonNode? Old { get; set; }
+    public JsonElement? Old { get; set; }
 
     /// <summary>
     /// Снимок записи после изменения. Может быть <c>null</c> для операций удаления.
     /// </summary>
-    public JsonNode? New { get; set; }
+    public JsonElement? New { get; set; }
 }

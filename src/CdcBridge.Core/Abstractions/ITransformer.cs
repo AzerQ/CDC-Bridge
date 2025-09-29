@@ -1,5 +1,4 @@
-using System;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using CdcBridge.Core.Models;
 
 namespace CdcBridge.Core.Abstractions;
@@ -9,7 +8,7 @@ namespace CdcBridge.Core.Abstractions;
 /// Определяет контракт для преобразования полезной нагрузки события перед отправкой получателям.
 /// </summary>
 /// <typeparam name="TParameters">Тип параметров конфигурации трансформера.</typeparam>
-public interface ITransformer<TParameters>
+public interface ITransformer
 {
     /// <summary>
     /// Уникальное имя трансформера.
@@ -23,5 +22,5 @@ public interface ITransformer<TParameters>
     /// <param name="trackedChange">Событие изменения для преобразования.</param>
     /// <param name="parameters">Параметры конфигурации трансформера (например, выражения JSONata, шаблоны и т.д.).</param>
     /// <returns>Преобразованные данные в формате JSON.</returns>
-    public JsonNode Transform(TrackedChange trackedChange, TParameters parameters);
+    public JsonElement Transform(TrackedChange trackedChange, JsonElement parameters);
 }

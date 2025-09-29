@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace CdcBridge.Core.Models;
@@ -28,7 +29,7 @@ public class ChangeDataEvent
     /// Трансформированные данные события после применения трансформера.
     /// Содержит данные в том виде, в котором они были отправлены получателю.
     /// </summary>
-    public required JsonNode TransformedChange { get; set; }
+    public required JsonElement TransformedChange { get; set; }
 
     /// <summary>
     /// Идентификатор экземпляра отслеживания, к которому относится событие.
