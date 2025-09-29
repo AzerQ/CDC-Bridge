@@ -1,6 +1,6 @@
 using System;
 
-namespace CdcBridge.Core.Models;
+namespace CdcBridge.Core.Models.Configuration;
 
 /// <summary>
 /// Модель отслеживаемого объекта

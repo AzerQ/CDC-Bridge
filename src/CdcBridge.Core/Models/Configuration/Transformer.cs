@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json.Nodes;
 
-namespace CdcBridge.Core.Models;
+namespace CdcBridge.Core.Models.Configuration;
 
 /// <summary>
 /// Трансформер события изменений.

@@ -1,6 +1,6 @@
 using System;
 
-namespace CdcBridge.Core.Models;
+namespace CdcBridge.Core.Models.Configuration;
 
 /// <summary>
 /// Модель подключения к источнику данных
