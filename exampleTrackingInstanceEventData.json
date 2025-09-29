@@ -1,0 +1,50 @@
+[
+    {
+        "eventType": "Update",
+        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "trackingInstance": "users",
+        "createdAt": "2024-10-01T12:34:56Z",
+        "data": {
+            "old": {
+                "id": 33424,
+                "name": "John Doe",
+                "email": "john.doe@example.com",
+                "status": "active"
+            },
+            "new": {
+                "id": 33424,
+                "name": "John Doe",
+                "email": "john.doe@example.com",
+                "status": "inactive"
+            }
+        }
+    },
+    {
+        "eventType": "Create",
+        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "trackingInstance": "users",
+        "createdAt": "2025-10-01T12:34:56Z",
+        "data": {
+            "new": {
+                "id": 400500,
+                "name": "Samantha Smith",
+                "email": "samantha.smith@example.com",
+                "status": "active"
+            }
+        }
+    },
+    {
+        "eventType": "Delete",
+        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "trackingInstance": "users",
+        "createdAt": "2025-09-01T12:34:56Z",
+        "data": {
+            "old": {
+                "id": 33789,
+                "name": "Alex Gordon",
+                "email": "alex.gordon@example.com",
+                "status": "removed"
+            }
+        }
+    }
+]
