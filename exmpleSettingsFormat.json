@@ -1,4 +1,5 @@
 {
+    "$schema": "./settings.schema.json",
     "_comment": "Формат настроек для трекинга изменений в таблицах",
     "connections": [
         {
@@ -74,10 +75,7 @@
             "type": "ExternalServiceFilter",
             "parameters": {
                 "serviceUrl": "https://api.external-service.com/checkUser",
-                "httpMethod": "POST",
-                "bodyTemplate": "{ \"email\": \"{{data.new.email}}\" }",
-                "expectedResponseField": "exists",
-                "expectedResponseValue": true
+                "httpMethod": "POST"
             }
         }
     ],
