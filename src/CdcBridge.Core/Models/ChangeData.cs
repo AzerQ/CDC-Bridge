@@ -8,6 +8,8 @@ namespace CdcBridge.Core.Models;
 /// </summary>
 public class ChangeData
 {
+    private JsonElement? transformedData;
+
     /// <summary>
     /// Снимок записи до изменения. Может быть <c>null</c> для операций вставки.
     /// </summary>
@@ -17,4 +19,10 @@ public class ChangeData
     /// Снимок записи после изменения. Может быть <c>null</c> для операций удаления.
     /// </summary>
     public JsonElement? New { get; set; }
+
+
+    /// <summary>
+    /// Преобразованные данные после применения трансформера (если указан).
+    /// </summary>
+    public JsonElement? TransformedData { get => transformedData ?? New; set => transformedData = value; }
 }
