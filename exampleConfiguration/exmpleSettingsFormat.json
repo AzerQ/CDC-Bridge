@@ -84,6 +84,7 @@
             "_comment": "Примеры трансформеров для преобразования данных перед отправкой получателям",
             "name": "AnalyticsServiceTransformer",
             "description": "Преобразователь для отправки данных в аналитический сервис",
+            "trackingInstance": "users",
             "type": "JSONataTransformer",
             "parameters": {
                 "transformation": "{ 'userId': data.new.id, 'displayName': data.new.name, 'login': data.new.email, 'isActive': data.new.status = 'active', 'timeStamp': createdAt }"
@@ -101,6 +102,7 @@
             "name": "AnalyticsChannel",
             "type": "WebhookReceiver",
             "parameters": {
+                "useWindowsAuth": false,
                 "webhookUrl": "https://hooks.analytics.com/services/your/webhook/url",
                 "httpMethod": "POST",
                 "headers": {

@@ -274,6 +274,11 @@
                     "minLength": 1,
                     "description": "Уникальное имя трансформера."
                 },
+                "trackingInstance": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Ссылка на TrackingInstance по значению его 'sourceTable'."
+                },
                 "description": {
                     "type": "string",
                     "description": "Описание преобразования."
@@ -419,6 +424,10 @@
                                     "bodyTemplate": {
                                         "type": "string",
                                         "description": "Необязательный шаблон тела запроса."
+                                    },
+                                    "useWindowsAuth": {
+                                        "type": "boolean",
+                                        "description": "Использовать ли аутентификацию Windows (только для WebhookReceiver)."
                                     }
                                 },
                                 "required": [
