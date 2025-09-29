@@ -34,7 +34,8 @@
 				"ms-dotnettools.csharp",
 				"ms-mssql.mssql",
 				"ms-dotnettools.csdevkit",
-				"mtxr.sqltools-driver-sqlite"
+				"mtxr.sqltools-driver-sqlite",
+				"shd101wyy.markdown-preview-enhanced"
 			]
 		}
 	},
