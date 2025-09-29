@@ -1,7 +1,7 @@
 [
     {
-        "eventType": "Update",
-        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "changeType": "Update",
+        "_changeTypeComment": "Possible values: Create, Update, Delete",
         "trackingInstance": "users",
         "createdAt": "2024-10-01T12:34:56Z",
         "data": {
@@ -20,8 +20,8 @@
         }
     },
     {
-        "eventType": "Create",
-        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "changeType": "Create",
+        "_changeTypeComment": "Possible values: Create, Update, Delete",
         "trackingInstance": "users",
         "createdAt": "2025-10-01T12:34:56Z",
         "data": {
@@ -34,8 +34,8 @@
         }
     },
     {
-        "eventType": "Delete",
-        "_eventTypeComment": "Possible values: Create, Update, Delete",
+        "changeType": "Delete",
+        "_changeTypeComment": "Possible values: Create, Update, Delete",
         "trackingInstance": "users",
         "createdAt": "2025-09-01T12:34:56Z",
         "data": {
