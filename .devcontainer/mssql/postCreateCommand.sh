@@ -62,3 +62,7 @@ then
         fi
     done
 fi
+
+# Check SQL Server Agent status
+echo "Checking SQL Server Agent status..."
+/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SApassword -d master -i $sqlpath/check_agent.sql
