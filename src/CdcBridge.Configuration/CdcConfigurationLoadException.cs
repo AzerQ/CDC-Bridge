@@ -8,7 +8,7 @@ public class CdcConfigurationLoadException : Exception
     private readonly ValidationResult? _validationResult;
 	
     public CdcConfigurationLoadException(ValidationResult validationResult): base("Failed to load configuration file: " +
-        $"{string.Join(",", validationResult.Errors.Select(err => $"[FieldName = {err.PropertyName} , Message = {err.ErrorMessage}]"))}")
+        $"{string.Join(",", validationResult.Errors.Select(err => $"(FieldName={err.PropertyName}, Message={err.ErrorMessage})"))}")
     {
         _validationResult = validationResult;
     }
