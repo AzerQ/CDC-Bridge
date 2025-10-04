@@ -26,10 +26,15 @@ public class TrackedChange
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
+    /// Метка для строки
+    /// </summary>
+    public required string RowLabel { get; set; }
+
+    /// <summary>
     /// Данные «до/после» изменения. Для <see cref="ChangeType.Insert"/> поле <c>Old</c> обычно отсутствует, для
     /// <see cref="ChangeType.Delete"/> — отсутствует <c>New</c>, для <see cref="ChangeType.Update"/> присутствуют оба.
     /// </summary>
-    public ChangeData? Data { get; set; }
+    public required ChangeData Data { get; set; }
 
     /// <example>
     /// Пример события обновления пользователя:

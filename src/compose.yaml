@@ -1,0 +1,6 @@
+﻿services:
+  cdcbridge.example.workerservice:
+    image: cdcbridge.example.workerservice
+    build:
+      context: .
+      dockerfile: CdcBridge.Example.WorkerService/Dockerfile

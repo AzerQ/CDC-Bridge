@@ -7,15 +7,26 @@ namespace CdcBridge.Core.Models.Configuration;
 /// </summary>
 public class TrackingInstance
 {
+
+    /// <summary>
+    /// Наименование экземпляра отслеживания
+    /// </summary>
+    public required string Name { get; set; }
+    
     /// <summary>
     /// Название исходной таблицы
     /// </summary>
     public required string SourceTable { get; set; }
 
     /// <summary>
+    /// Исходная схема
+    /// </summary>
+    public string? SourceSchema { get; set; }
+
+    /// <summary>
     /// Cписок колонок, которые необходимо захватывать
     /// </summary>
-    public required List<string> CapturedColumns { get; set; }
+    public List<string> CapturedColumns { get; set; } = [];
 
     /// <summary>
     /// Описание отслеживаемого объекта

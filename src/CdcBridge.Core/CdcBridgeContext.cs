@@ -164,9 +164,9 @@ public class CdcBridgeContext(ICdcBridgeStorage cdcBridgeStorage)
     /// <summary>
     /// Получает настройки экземпляра отслеживания по имени таблицы из конфигурации.
     /// </summary>
-    /// <param name="tableName">Имя исходной таблицы для поиска.</param>
+    /// <param name="trakingInstanceName">Имя исходной таблицы для поиска.</param>
     /// <returns>Настройки экземпляра отслеживания или <c>null</c>, если экземпляр не найден.</returns>
-    public TrackingInstance? GetTrackingInstanceSettings(string tableName) => Configuration.TrackingInstances.FirstOrDefault(ti => ti.SourceTable == tableName);
+    public TrackingInstance? GetTrackingInstanceSettings(string trakingInstanceName) => Configuration.TrackingInstances.FirstOrDefault(ti => ti.Name == trakingInstanceName);
 
     #endregion
 
