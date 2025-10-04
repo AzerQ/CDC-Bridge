@@ -3,10 +3,10 @@ $schema: ./settings.schema.json
 
 connections:
   - # Объект с настройками подключения к источнику данных (БД)
-    name: shop_application_db
+    name: WorkersTrackingDb
     description: Подключение к базе данных приложения для покупок
     type: SqlServer
-    connectionString: Server=localhost;Database=shop;User Id=sa;Password=your_password;
+    connectionString: "Data Source=aqpc; Initial Catalog=mssql_cdc_test;User ID=sa;Password=YourStrong@Password123;Encrypt=True;TrustServerCertificate=True;Application Name=CDC_BRIDGE_EXAMPLE"
     active: true
 
 trackingInstances:
@@ -17,23 +17,23 @@ trackingInstances:
       - email
       - status
     description: Захват основных изменений в таблице пользователей
-    connection: shop_application_db
+    connection: WorkersTrackingDb
     active: true
-    checkIntervalInSeconds: 20
-    name: usersTracking
+    checkIntervalInSeconds: 15
+    name: UsersTracking
 
 filters:
   - # Примеры фильтров для трекинга изменений (Привязаны к trackingInstance)
     description: Фильтр для отслеживания только изменений статуса пользователя с active на inactive
     name: ActiveToInactive
-    trackingInstance: usersTracking
+    trackingInstance: UsersTracking
     type: JsonPathFilter
     parameters:
       expression: $[?(@.data.old.status == 'active' && @.data.new.status == 'inactive')]
 
   - description: Фильтр для отслеживания удаленных пользователей
     name: DeletedUsers
-    trackingInstance: usersTracking
+    trackingInstance: UsersTracking
     type: JsonPathFilter
     parameters:
       expression: $[?(@.eventType == 'Delete')]
@@ -42,7 +42,7 @@ transformers:
   - # Примеры трансформеров для преобразования данных перед отправкой получателям
     name: AnalyticsServiceTransformer
     description: Преобразователь для отправки данных в аналитический сервис
-    trackingInstance: usersTracking
+    trackingInstance: UsersTracking
     type: JSONataTransformer
     parameters:
       transformation: >-
@@ -55,7 +55,7 @@ receivers:
     description: Получатель для отправки уведомлений на WebHook в сервис аналитики
     filter: ActiveToInactive
     transformer: AnalyticsServiceTransformer
-    trackingInstance: usersTracking
+    trackingInstance: UsersTracking
     type: WebhookReceiver
     parameters:
       useWindowsAuth: false
