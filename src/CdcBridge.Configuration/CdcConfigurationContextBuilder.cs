@@ -7,13 +7,15 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace CdcBridge.Configuration;
 
-public class ConfigurationLoader : IConfigurationLoader
+public class CdcConfigurationContextBuilder : ICdcConfigurationContextBuilder
 {
 	private readonly IDeserializer _deserializer;
 	
 	private readonly AbstractValidator<CdcSettings> _cdcSettingsValidator;
+	
+	private CdcSettings _cdcSettings = new CdcSettings {Connections = [], Receivers = [], TrackingInstances = []};
 
-	public ConfigurationLoader()
+	public CdcConfigurationContextBuilder()
 	{
 		_deserializer = new DeserializerBuilder()
 			.WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -24,7 +26,7 @@ public class ConfigurationLoader : IConfigurationLoader
 		_cdcSettingsValidator = new CdcSettingsValidator();
 	}
 
-	public CdcSettings LoadConfiguration(string filePath)
+	public ICdcConfigurationContextBuilder AddConfigurationFromFile(string filePath)
 	{
 		if (!File.Exists(filePath))
 		{
@@ -32,14 +34,26 @@ public class ConfigurationLoader : IConfigurationLoader
 		}
 
 		var yamlContent = File.ReadAllText(filePath);
-		return LoadConfigurationFromString(yamlContent);
+		return AddConfigurationFromString(yamlContent);
 	}
 
-	public CdcSettings LoadConfigurationFromString(string yamlContent)
+	public ICdcConfigurationContextBuilder AddConfigurationFromString(string yamlContent)
 	{ 
 			var settings = _deserializer.Deserialize<CdcSettings>(yamlContent);
 			ValidateConfiguration(settings);
-			return settings;
+			return AddConfiguration(settings);
+	}
+
+	public ICdcConfigurationContextBuilder AddConfiguration(CdcSettings newSettings)
+	{
+		ValidateConfiguration(newSettings);
+		_cdcSettings = _cdcSettings.Merge(newSettings);
+		return this;
+	}
+
+	public ICdcConfigurationContext Build()
+	{
+		return new CdcConfigurationContext(_cdcSettings);
 	}
 
 	private void ValidateConfiguration(CdcSettings settings)

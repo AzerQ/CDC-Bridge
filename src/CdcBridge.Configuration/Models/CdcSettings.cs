@@ -46,12 +46,24 @@ public class CdcSettings
     {
         return new CdcSettings
         {
-            Connections = Connections.Concat(anotherSettings.Connections),
-            TrackingInstances = TrackingInstances.Concat(anotherSettings.TrackingInstances),
-            Receivers = Receivers.Concat(anotherSettings.Receivers),
-            Filters = Filters.Concat(anotherSettings.Filters),
-            Transformers = Transformers.Concat(anotherSettings.Transformers)
+            Connections = Connections.ConcatDistinctByField(anotherSettings.Connections, con => con.Name),
+            TrackingInstances = TrackingInstances.ConcatDistinctByField(anotherSettings.TrackingInstances, t => t.Name),
+            Receivers = Receivers.ConcatDistinctByField(anotherSettings.Receivers, r => r.Name),
+            Filters = Filters.ConcatDistinctByField(anotherSettings.Filters, f => f.Name),
+            Transformers = Transformers.ConcatDistinctByField(anotherSettings.Transformers, t => t.Name)
         };
     }
     
+}
+
+static class EnumerableExtensions
+{
+    public static IEnumerable<TElement> ConcatDistinctByField<TElement, TProperty>(this IEnumerable<TElement> source,
+        IEnumerable<TElement> anotherCollection,
+        Func<TElement, TProperty> selector)
+    {
+        var uniqueInAnotherCollection = anotherCollection
+            .Where(anotherItem => !source.Any(item => selector(item)!.Equals(selector(anotherItem))));
+        return source.Concat(uniqueInAnotherCollection);
+    }
 }

@@ -4,14 +4,17 @@ using System.Reflection;
 using System.Text.Json;
 using CdcBridge.Configuration;
 
-var loader = new ConfigurationLoader();
 string baseFolderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location!)!;
 string configPath = Path.Combine(baseFolderPath, "example/exampleSettingsFormat.yaml");
 
-var cdcSettings = loader.LoadConfiguration(configPath);
+var cdcConfigurationContext = new CdcConfigurationContextBuilder()
+    .AddConfigurationFromFile(configPath)
+    .Build();
 
 var expr = new { expression = "" };
 
-var parameters = cdcSettings.Filters.First().Parameters.Deserialize(expr.GetType());
+var parameters = cdcConfigurationContext.CdcSettings.Filters.First().Parameters.Deserialize(expr.GetType());
+
+var resolvedReceiverPipeline = cdcConfigurationContext.GetReceiverPipeline("AnalyticsWebHook");
 
 Console.ReadLine();
