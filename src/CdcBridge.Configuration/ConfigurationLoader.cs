@@ -1,5 +1,7 @@
 ﻿using CdcBridge.Configuration.Converters;
 using CdcBridge.Configuration.Models;
+using CdcBridge.Configuration.Validators;
+using FluentValidation;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -8,6 +10,8 @@ namespace CdcBridge.Configuration;
 public class ConfigurationLoader : IConfigurationLoader
 {
 	private readonly IDeserializer _deserializer;
+	
+	private readonly AbstractValidator<CdcSettings> _cdcSettingsValidator;
 
 	public ConfigurationLoader()
 	{
@@ -16,6 +20,8 @@ public class ConfigurationLoader : IConfigurationLoader
 			.WithTypeConverter(new JsonElementConverter())
 			.IgnoreUnmatchedProperties()
 			.Build();
+		
+		_cdcSettingsValidator = new CdcSettingsValidator();
 	}
 
 	public CdcSettings LoadConfiguration(string filePath)
@@ -30,47 +36,19 @@ public class ConfigurationLoader : IConfigurationLoader
 	}
 
 	public CdcSettings LoadConfigurationFromString(string yamlContent)
-	{
-		try
-		{
+	{ 
 			var settings = _deserializer.Deserialize<CdcSettings>(yamlContent);
 			ValidateConfiguration(settings);
 			return settings;
-		}
-		catch (Exception ex)
-		{
-			throw new InvalidOperationException("Failed to parse YAML configuration", ex);
-		}
 	}
 
 	private void ValidateConfiguration(CdcSettings settings)
 	{
-		if (settings.Connections == null || !settings.Connections.Any())
-			throw new InvalidOperationException("Configuration must contain at least one connection");
-
-		if (settings.TrackingInstances == null || !settings.TrackingInstances.Any())
-			throw new InvalidOperationException("Configuration must contain at least one tracking instance");
-
-		// Проверка уникальности имен
-		ValidateUniqueNames(settings.Connections.Select(c => c.Name), "connections");
-		ValidateUniqueNames(settings.Filters?.Select(f => f.Name) ?? Enumerable.Empty<string>(), "filters");
-		ValidateUniqueNames(settings.Transformers?.Select(t => t.Name) ?? Enumerable.Empty<string>(), "transformers");
-		ValidateUniqueNames(settings.Receivers?.Select(r => r.Name) ?? Enumerable.Empty<string>(), "receivers");
-	}
-
-	private void ValidateUniqueNames(IEnumerable<string> names, string sectionName)
-	{
-		var duplicates = names
-			.GroupBy(x => x)
-			.Where(g => g.Count() > 1)
-			.Select(g => g.Key)
-			.ToList();
-
-		if (duplicates.Any())
+		var validationResult = _cdcSettingsValidator.Validate(settings);
+		if (!validationResult.IsValid)
 		{
-			throw new InvalidOperationException(
-				$"Duplicate names found in {sectionName}: {string.Join(", ", duplicates)}");
+			throw new CdcConfigurationLoadException(validationResult);
 		}
 	}
+	
 }
-

@@ -1,5 +1,5 @@
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Models;
-using CdcBridge.Core.Models.Configuration;
 
 namespace CdcBridge.Core.Abstractions;
 

@@ -12,7 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{9FAD
 		..\exampleConfiguration\exampleTrackingInstanceEventData.json = ..\exampleConfiguration\exampleTrackingInstanceEventData.json
 		..\exampleConfiguration\settings.schema.json = ..\exampleConfiguration\settings.schema.json
 		..\exampleConfiguration\exampleSettingsFormat.yaml = ..\exampleConfiguration\exampleSettingsFormat.yaml
-		..\exampleConfiguration\exampleSettingsFormat.json = ..\exampleConfiguration\exampleSettingsFormat.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcBridge.Example.WorkerService", "CdcBridge.Example.WorkerService\CdcBridge.Example.WorkerService.csproj", "{89AF0E69-7064-4471-AF80-5F8FF919487E}"

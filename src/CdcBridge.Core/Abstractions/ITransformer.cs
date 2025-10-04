@@ -7,7 +7,7 @@ namespace CdcBridge.Core.Abstractions;
 /// Интерфейс для трансформера событий изменений.
 /// Определяет контракт для преобразования полезной нагрузки события перед отправкой получателям.
 /// </summary>
-/// <typeparam name="TParameters">Тип параметров конфигурации трансформера.</typeparam>
+
 public interface ITransformer
 {
     /// <summary>

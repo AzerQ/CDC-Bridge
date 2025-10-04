@@ -1,7 +1,7 @@
 ﻿using System.Data;
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
 using CdcBridge.Core.Models;
-using CdcBridge.Core.Models.Configuration;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -10,10 +10,10 @@ namespace CdcBridge.Application.CdcSources;
 /// <summary>
 /// Захват данных по таблицам из SQL Server
 /// </summary>
-public class SqlServerCdcSource (string connectionString) : ICdcSource
+public class SqlServerCdcSource (Connection connection) : ICdcSource
 {
     
-    private readonly MsSqlChangesProvider _msSqlChangesProvider = new (connectionString);
+    private readonly MsSqlChangesProvider _msSqlChangesProvider = new (connection.ConnectionString);
     
     public async Task<IEnumerable<TrackedChange>> GetChanges(TrackingInstance trackingInstance, CdcRequest? cdcRequest = null)
     {
@@ -29,7 +29,7 @@ public class SqlServerCdcSource (string connectionString) : ICdcSource
     public async Task EnableTrackingInstance(TrackingInstance trackingInstance)
     {
         (bool isCdcEnabledOnDb, _) = await _msSqlChangesProvider.CheckIsCdcEnabledOnDb();
-        using IDbConnection dbConnection = new SqlConnection(connectionString);
+        using IDbConnection dbConnection = new SqlConnection(connection.ConnectionString);
         
         if (!isCdcEnabledOnDb)
         {
@@ -65,7 +65,7 @@ public class SqlServerCdcSource (string connectionString) : ICdcSource
         
         if (isEnabled)
         {
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            using IDbConnection dbConnection = new SqlConnection(connection.ConnectionString);
             await dbConnection.ExecuteAsync("""
                                             EXEC sys.sp_cdc_disable_table
                                             @source_schema = @SourceSchema,

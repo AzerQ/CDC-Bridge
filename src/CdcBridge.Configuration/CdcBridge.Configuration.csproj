@@ -8,14 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.0.0" />
       <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\exampleConfiguration\exampleSettingsFormat.json">
-        <Link>example\exampleSettingsFormat.json</Link>
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <Content Include="..\..\exampleConfiguration\exampleSettingsFormat.yaml">
         <Link>example\exampleSettingsFormat.yaml</Link>
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

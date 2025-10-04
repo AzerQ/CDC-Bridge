@@ -12,10 +12,6 @@
             "format": "uri-reference",
             "description": "Опциональная ссылка на JSON Schema для IDE/валидаторов. Обычно относительный путь к этой схеме."
         },
-        "_comment": {
-            "type": "string",
-            "description": "Произвольный комментарий к файлу настроек. JSON не поддерживает // комментарии, поэтому используйте это поле."
-        },
         "connections": {
             "type": "array",
             "minItems": 1,
@@ -63,10 +59,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "_comment": {
-                    "type": "string",
-                    "description": "Комментарий к подключению."
-                },
                 "name": {
                     "type": "string",
                     "minLength": 1,
@@ -102,14 +94,19 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "_comment": {
+                "name": {
                     "type": "string",
-                    "description": "Комментарий к экземпляру трекинга."
+                    "description": "Наименование экземпляра отслеживания (Должно быть уникальным, будет использоваться как ссылка)"
                 },
                 "sourceTable": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Имя источника (обычно имя таблицы) в подключении. Это значение также используется как ссылочный идентификатор из filters/receivers."
+                    "description": "Имя источника (обычно имя таблицы) в подключении."
+                },
+                "sourceSchema": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Имя схемы для таблицы"
                 },
                 "capturedColumns": {
                     "type": "array",
@@ -144,7 +141,8 @@
                 "capturedColumns",
                 "connection",
                 "active",
-                "checkIntervalInSeconds"
+                "checkIntervalInSeconds",
+                "name"
             ],
             "$comment": "Уникальность по sourceTable рекомендуется для однозначных ссылок из filters/receivers, но не может быть строго проверена JSON Schema."
         },
@@ -152,10 +150,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "_comment": {
-                    "type": "string",
-                    "description": "Комментарий к фильтру."
-                },
                 "name": {
                     "type": "string",
                     "minLength": 1,
@@ -168,7 +162,7 @@
                 "trackingInstance": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Ссылка на TrackingInstance по значению его 'sourceTable'."
+                    "description": "Ссылка на TrackingInstance по значению его 'name'."
                 },
                 "type": {
                     "type": "string",
@@ -265,10 +259,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "_comment": {
-                    "type": "string",
-                    "description": "Комментарий к трансформеру."
-                },
                 "name": {
                     "type": "string",
                     "minLength": 1,
@@ -277,7 +267,7 @@
                 "trackingInstance": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Ссылка на TrackingInstance по значению его 'sourceTable'."
+                    "description": "Ссылка на TrackingInstance по значению его 'name'."
                 },
                 "description": {
                     "type": "string",
@@ -335,10 +325,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "_comment": {
-                    "type": "string",
-                    "description": "Комментарий к получателю."
-                },
                 "name": {
                     "type": "string",
                     "minLength": 1,
@@ -351,7 +337,7 @@
                 "trackingInstance": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Ссылка на TrackingInstance по значению его 'sourceTable'."
+                    "description": "Ссылка на TrackingInstance по значению его 'name'."
                 },
                 "filter": {
                     "type": "string",

@@ -1,6 +1,5 @@
-using System;
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Models;
-using CdcBridge.Core.Models.Configuration;
 
 namespace CdcBridge.Core.Abstractions;
 
@@ -10,18 +9,7 @@ namespace CdcBridge.Core.Abstractions;
 /// </summary>
 public interface ICdcBridgeStorage
 {
-    /// <summary>
-    /// Получает текущую конфигурацию системы.
-    /// </summary>
-    /// <returns>Конфигурация системы CDC Bridge.</returns>
-    public Task<CdcBridgeConfiguration> GetConfiguration();
-
-    /// <summary>
-    /// Сохраняет конфигурацию системы.
-    /// </summary>
-    /// <param name="configuration">Конфигурация для сохранения.</param>
-    public Task SaveConfiguration(CdcBridgeConfiguration configuration);
-
+    
     /// <summary>
     /// Получает номер последней обработанной строки для указанного экземпляра отслеживания.
     /// Используется для определения точки, с которой необходимо продолжить чтение изменений.

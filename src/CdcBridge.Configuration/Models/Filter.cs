@@ -2,11 +2,33 @@
 
 namespace CdcBridge.Configuration.Models;
 
+/// <summary>
+/// Модель фильтра
+/// </summary>
 public class Filter
 {
-    public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// Наименование фильтра
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// Описание фильтра
+    /// </summary>
     public string? Description { get; set; }
-    public string TrackingInstance { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public JsonElement Parameters { get; set; } = new();
+
+    /// <summary>
+    /// Наименование отслеживаемого объекта, к которому применяется фильтр
+    /// </summary>
+    public required string TrackingInstance { get; set; }
+
+    /// <summary>
+    /// Тип фильтра
+    /// </summary>
+    public required string Type { get; set; }
+
+    /// <summary>
+    /// Параметры фильтра
+    /// </summary>
+    public JsonElement Parameters { get; set; }
 }

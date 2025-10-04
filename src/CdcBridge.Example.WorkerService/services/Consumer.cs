@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using CdcBridge.Application.CdcSources;
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
 using CdcBridge.Core.Models;
-using CdcBridge.Core.Models.Configuration;
 
 namespace CdcBridge.Example.WorkerService.services;
 
@@ -18,7 +18,12 @@ public class Consumer(ILogger<Consumer> logger, IConfiguration configuration) : 
         
         int secondsPollingInterval = configuration.GetValue<int>("Intervals:ChangesPollingIntervalInSeconds");
         
-        ICdcSource cdcSource = new SqlServerCdcSource(connectionString);
+        ICdcSource cdcSource = new SqlServerCdcSource(new Connection
+        {
+            ConnectionString = connectionString,
+            Name = "ExampleConnection",
+            Type = "SqlServerCdcSource"
+        });
         var trackingInstance = new TrackingInstance
         {
             Name = "captureEmployees",

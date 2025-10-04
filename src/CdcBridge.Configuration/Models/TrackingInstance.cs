@@ -1,11 +1,47 @@
 ﻿namespace CdcBridge.Configuration.Models;
 
+/// <summary>
+/// Модель отслеживаемого объекта
+/// </summary>
 public class TrackingInstance
 {
-    public string SourceTable { get; set; } = string.Empty;
-    public List<string> CapturedColumns { get; set; } = new();
+    /// <summary>
+    /// Наименование экземпляра отслеживания
+    /// </summary>
+    public required string Name { get; set; }
+    
+    /// <summary>
+    /// Название исходной таблицы
+    /// </summary>
+    public required string SourceTable { get; set; }
+
+    /// <summary>
+    /// Исходная схема
+    /// </summary>
+    public string? SourceSchema { get; set; }
+
+    /// <summary>
+    /// Список колонок, которые необходимо захватывать
+    /// </summary>
+    public List<string> CapturedColumns { get; set; } = [];
+
+    /// <summary>
+    /// Описание отслеживаемого объекта
+    /// </summary>
     public string? Description { get; set; }
-    public string Connection { get; set; } = string.Empty;
-    public bool Active { get; set; }
+
+    /// <summary>
+    /// Имя подключения к источнику данных
+    /// </summary>
+    public required string Connection { get; set; }
+
+    /// <summary>
+    /// Активно ли отслеживание для этого объекта
+    /// </summary>
+    public bool Active { get; set; } = true;
+
+    /// <summary>
+    /// Интервал проверки изменений в секундах
+    /// </summary>
     public int CheckIntervalInSeconds { get; set; }
 }
