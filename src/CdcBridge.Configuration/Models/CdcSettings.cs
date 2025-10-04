@@ -36,4 +36,22 @@ public class CdcSettings
     /// Трансформеры позволяют изменить формат данных перед отправкой получателям.
     /// </summary>
     public IEnumerable<Transformer> Transformers { get; set; } = [];
+
+    /// <summary>
+    /// Объединить текущую конфигурацию  с новой конфигурацией CDC
+    /// </summary>
+    /// <param name="anotherSettings">Дополнительные настройки CDC</param>
+    /// <returns>Новый объект конфигурации со всеми значениями из двух конфигураций</returns>
+    public CdcSettings Merge(CdcSettings anotherSettings)
+    {
+        return new CdcSettings
+        {
+            Connections = Connections.Concat(anotherSettings.Connections),
+            TrackingInstances = TrackingInstances.Concat(anotherSettings.TrackingInstances),
+            Receivers = Receivers.Concat(anotherSettings.Receivers),
+            Filters = Filters.Concat(anotherSettings.Filters),
+            Transformers = Transformers.Concat(anotherSettings.Transformers)
+        };
+    }
+    
 }
