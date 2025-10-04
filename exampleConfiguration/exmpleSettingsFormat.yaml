@@ -1,0 +1,105 @@
+$schema: ./settings.schema.json
+_comment: Формат настроек для трекинга изменений в таблицах
+
+connections:
+  - _comment: Объект с настройками подключения к источнику данных (БД)
+    name: shop_application_db
+    description: Подключение к базе данных приложения для покупок
+    type: SqlServer
+    connectionString: Server=localhost;Database=shop;User Id=sa;Password=your_password;
+    active: true
+
+trackingInstances:
+  - _comment: Объект с настройками трекинга изменений в таблице
+    sourceTable: users
+    capturedColumns:
+      - name
+      - email
+      - status
+    description: Захват основных изменений в таблице пользователей
+    connection: shop_application_db
+    active: true
+    checkIntervalInSeconds: 20
+
+  - sourceTable: orders
+    capturedColumns:
+      - order_status
+      - total_amount
+    description: Захват изменений в таблице заказов
+    connection: shop_application_db
+    active: true
+    checkIntervalInSeconds: 15
+
+  - sourceTable: products
+    capturedColumns:
+      - price
+      - stock_quantity
+    description: Захват изменений в таблице продуктов
+    connection: shop_application_db
+    active: true
+    checkIntervalInSeconds: 5
+
+filters:
+  - _comment: Примеры фильтров для трекинга изменений (Привязаны к trackingInstance)
+    description: Фильтр для отслеживания только изменений статуса пользователя с active на inactive
+    name: ActiveToInactive
+    trackingInstance: users
+    type: JsonPathFilter
+    parameters:
+      expression: $[?(@.data.old.status == 'active' && @.data.new.status == 'inactive')]
+
+  - description: Фильтр для отслеживания удаленных пользователей
+    name: DeletedUsers
+    trackingInstance: users
+    type: JsonPathFilter
+    parameters:
+      expression: $[?(@.eventType == 'Delete')]
+
+  - description: Фильтр для отслеживания изменений в таблице заказов
+    name: UserExistsInExternalService
+    trackingInstance: users
+    type: ExternalServiceFilter
+    parameters:
+      serviceUrl: https://api.external-service.com/checkUser
+      httpMethod: POST
+
+transformers:
+  - _comment: Примеры трансформеров для преобразования данных перед отправкой получателям
+    name: AnalyticsServiceTransformer
+    description: Преобразователь для отправки данных в аналитический сервис
+    trackingInstance: users
+    type: JSONataTransformer
+    parameters:
+      transformation: >-
+        { 'userId': data.new.id, 'displayName': data.new.name, 'login': data.new.email, 'isActive': data.new.status = 'active', 'timeStamp': createdAt }
+
+receivers:
+  - retryCount: 3
+    _comment: Примеры получателей для отправки уведомлений о изменениях
+    description: Получатель для отправки уведомлений на WebHook в сервис аналитики
+    filter: ActiveToInactive
+    transformer: AnalyticsServiceTransformer
+    trackingInstance: users
+    name: AnalyticsChannel
+    type: WebhookReceiver
+    parameters:
+      useWindowsAuth: false
+      webhookUrl: https://hooks.analytics.com/services/your/webhook/url
+      httpMethod: POST
+      headers:
+        Authorization: Bearer 49aQVmpt3GpGGq8PqzT2MGEJGHMdDrDoQ5u9moADuh7oKdhsSSfxOpOvymfkH7GD
+        Content-Type: application/json
+        User-Agent: ChangeTracker/1.0
+        Accept: application/json
+
+  - retryCount: 1
+    filter: DeletedUsers
+    description: Отправка данных о удалении пользователя в топик kafka
+    trackingInstance: users
+    name: UsersKafkaReceiver
+    type: MyKafkaReceiver
+    parameters:
+      bootstrapServers: localhost:9092
+      topic: user-deletions
+      clientId: ChangeTrackerClient
+      acks: all
