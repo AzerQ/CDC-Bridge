@@ -10,56 +10,43 @@ namespace CdcBridge.Service.Workers.Subworkers;
 /// Воркер, отвечающий за опрос одного источника данных (TrackingInstance)
 /// и сохранение полученных изменений в буфер.
 /// </summary>
-public class SourceWorker
+public class SourceWorker(
+    ILogger<SourceWorker> logger,
+    TrackingInstance trackingInstanceConfig,
+    ICdcBridgeStorage storage,
+    ICdcSource cdcSource)
 {
-    private readonly ILogger<SourceWorker> _logger;
-    private readonly TrackingInstance _trackingInstanceConfig;
-    private readonly ICdcBridgeStorage _storage;
-    private readonly ICdcSource _cdcSource;
-
-    public SourceWorker(
-        ILogger<SourceWorker> logger,
-        TrackingInstance trackingInstanceConfig,
-        ICdcBridgeStorage storage,
-        ICdcSource cdcSource)
-    {
-        _logger = logger;
-        _trackingInstanceConfig = trackingInstanceConfig;
-        _storage = storage;
-        _cdcSource = cdcSource;
-    }
-
     public async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("SourceWorker for '{InstanceName}' started.", _trackingInstanceConfig.Name);
+        logger.LogInformation("SourceWorker for '{InstanceName}' started.", trackingInstanceConfig.Name);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                var lastRowLabel = await _storage.GetLastProcessedRowLabelAsync(_trackingInstanceConfig.Name);
+                var lastRowLabel = await storage.GetLastProcessedRowLabelAsync(trackingInstanceConfig.Name);
                 var cdcRequest = new CdcRequest { LastRowFlag = lastRowLabel };
 
-                var changes = (await _cdcSource.GetChanges(_trackingInstanceConfig, cdcRequest)).ToList();
+                var changes = (await cdcSource.GetChanges(trackingInstanceConfig, cdcRequest)).ToList();
 
                 if (changes.Any())
                 {
-                    await _storage.AddChangesToBufferAsync(changes);
+                    await storage.AddChangesToBufferAsync(changes);
                     var newLastRowLabel = changes.Last().RowLabel;
-                    await _storage.SaveLastProcessedRowLabelAsync(_trackingInstanceConfig.Name, newLastRowLabel);
+                    await storage.SaveLastProcessedRowLabelAsync(trackingInstanceConfig.Name, newLastRowLabel);
                     
-                    _logger.LogInformation("SourceWorker for '{InstanceName}' buffered {Count} new changes. Last row label: {Label}",
-                        _trackingInstanceConfig.Name, changes.Count, newLastRowLabel);
+                    logger.LogInformation("SourceWorker for '{InstanceName}' buffered {Count} new changes. Last row label: {Label}",
+                        trackingInstanceConfig.Name, changes.Count, newLastRowLabel);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in SourceWorker for '{InstanceName}'. Will retry after delay.", _trackingInstanceConfig.Name);
+                logger.LogError(ex, "Error in SourceWorker for '{InstanceName}'. Will retry after delay.", trackingInstanceConfig.Name);
             }
 
-            await Task.Delay(_trackingInstanceConfig.CheckIntervalInSeconds * 1000, stoppingToken);
+            await Task.Delay(trackingInstanceConfig.CheckIntervalInSeconds * 1000, stoppingToken);
         }
 
-        _logger.LogInformation("SourceWorker for '{InstanceName}' stopped.", _trackingInstanceConfig.Name);
+        logger.LogInformation("SourceWorker for '{InstanceName}' stopped.", trackingInstanceConfig.Name);
     }
 }
