@@ -1,9 +1,12 @@
 ﻿using CdcBridge.Configuration;
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
+using CdcBridge.Core.Models;
 using CdcBridge.Service.Workers.Subworkers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ICdcBridgeStorage = CdcBridge.Persistence.Abstractions.ICdcBridgeStorage;
 
 namespace CdcBridge.Service.Workers;
@@ -45,19 +48,12 @@ public class CdcBridgeOrchestrator : IHostedService
         }
 
         // Запуск Receiver Workers
-        foreach (var receiverConfig in _configContext.CdcSettings.Receivers)
+        foreach (Receiver receiverConfig in _configContext.CdcSettings.Receivers)
         {
             var filterConfig = !string.IsNullOrEmpty(receiverConfig.Filter) ? _configContext.GetFilter(receiverConfig.Filter) : null;
             var transformerConfig = !string.IsNullOrEmpty(receiverConfig.Transformer) ? _configContext.GetTransformer(receiverConfig.Transformer) : null;
 
-            var worker = new ReceiverWorker(
-                 _serviceProvider.GetRequiredService<ILogger<ReceiverWorker>>(),
-                 receiverConfig,
-                 _serviceProvider.GetRequiredService<ICdcBridgeStorage>(),
-                 _serviceProvider.GetRequiredService<ComponentFactory>(),
-                 filterConfig,
-                 transformerConfig
-            );
+            var worker = MakeReceiverWorker(receiverConfig, filterConfig, transformerConfig);
             _workerTasks.Add(worker.ExecuteAsync(_cancellationTokenSource.Token));
         }
         
@@ -68,6 +64,19 @@ public class CdcBridgeOrchestrator : IHostedService
         return Task.CompletedTask;
     }
 
+    private ReceiverWorker MakeReceiverWorker(Receiver receiverConfig, Filter? filterConfig,
+        Transformer? transformerConfig) =>
+        new(
+            _serviceProvider.GetRequiredService<ILogger<ReceiverWorker>>(),
+            receiverConfig,
+            _serviceProvider.GetRequiredService<ICdcBridgeStorage>(),
+            _serviceProvider.GetRequiredService<ComponentFactory>(),
+            filterConfig,
+            transformerConfig,
+            _serviceProvider.GetRequiredService<IOptions<ReceiverWorkerConfiguration>>()
+        );
+    
+    
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("CDC Bridge Orchestrator is stopping.");

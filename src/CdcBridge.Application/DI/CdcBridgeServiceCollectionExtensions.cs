@@ -59,6 +59,7 @@ public static class CdcBridgeServiceCollectionExtensions
     public static IServiceCollection AddCdcBridge(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddWorkersConfiguration(configuration)   
             .AddCdcBridgeCoreServices(configuration)
             .AddCdcBridgePersistence(configuration)
             .AddCdcBridgeApplicationComponents()
@@ -137,4 +138,18 @@ public static class CdcBridgeServiceCollectionExtensions
         
         return services;
     }
+
+    /// <summary>
+    ///  Конфигурация настроек для рабочих процессов по очистке и заполнению буфера изменений
+    /// </summary>
+    private static IServiceCollection AddWorkersConfiguration(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        return services
+            .Configure<CleanupWorkerConfiguration>(
+                configuration.GetSection("CdcBridge:WorkersConfiguration:CleanupWorker"))
+            .Configure<ReceiverWorkerConfiguration>(
+                configuration.GetSection("CdcBridge:WorkersConfiguration:ReceiverWorker"));
+    }
+    
 }
