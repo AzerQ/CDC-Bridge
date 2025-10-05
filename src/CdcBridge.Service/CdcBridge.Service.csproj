@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CdcBridge.Application\CdcBridge.Application.csproj" />
       <ProjectReference Include="..\CdcBridge.Configuration\CdcBridge.Configuration.csproj" />
       <ProjectReference Include="..\CdcBridge.Core\CdcBridge.Core.csproj" />
       <ProjectReference Include="..\CdcBridge.Persistence\CdcBridge.Persistence.csproj" />
