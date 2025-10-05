@@ -67,7 +67,7 @@ public class ReceiverValidator : AbstractValidator<Receiver>
         else
         {
             var httpMethod = receiver.Parameters.GetStringProperty("httpMethod");
-            var validMethods = new[] { "POST", "PUT", "PATCH" };
+            var validMethods = new[] { "POST", "PUT", "PATCH", "GET", "DELETE" };
             if (!validMethods.Contains(httpMethod?.ToUpper()))
             {
                 context.AddFailure($"WebhookReceiver '{receiver.Name}' has invalid HTTP method: {httpMethod}. Valid methods are: {string.Join(", ", validMethods)}");

@@ -349,7 +349,7 @@
                 },
                 "type": {
                     "type": "string",
-                    "description": "Тип получателя. Примеры: WebhookReceiver, MyKafkaReceiver.",
+                    "description": "Тип получателя. Примеры: WebhookReceiver",
                     "$comment": "Список типов может быть расширен приложением."
                 },
                 "retryCount": {
@@ -386,17 +386,27 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "properties": {
+                                    "urlIsTemplate" : {
+                                        "type": "boolean",
+                                        "description": "Флаг указывающий на то что URL это Handlebars шаблон в который будут подставлены данные из модели изменения"
+                                    },
                                     "webhookUrl": {
                                         "type": "string",
                                         "format": "uri",
                                         "description": "URL вебхука для отправки события."
+                                    },
+                                    "timeoutMs": {
+                                        "type": "number",
+                                        "description": "Таймаут ожидания ответа от стороннего сервиса"
                                     },
                                     "httpMethod": {
                                         "type": "string",
                                         "enum": [
                                             "POST",
                                             "PUT",
-                                            "PATCH"
+                                            "PATCH",
+                                            "GET",
+                                            "DELETE"
                                         ],
                                         "description": "HTTP метод отправки."
                                     },
@@ -406,64 +416,12 @@
                                         "additionalProperties": {
                                             "type": "string"
                                         }
-                                    },
-                                    "bodyTemplate": {
-                                        "type": "string",
-                                        "description": "Необязательный шаблон тела запроса."
-                                    },
-                                    "useWindowsAuth": {
-                                        "type": "boolean",
-                                        "description": "Использовать ли аутентификацию Windows (только для WebhookReceiver)."
                                     }
                                 },
                                 "required": [
+                                    "timeoutMs",
                                     "webhookUrl",
                                     "httpMethod"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "type": {
-                                "const": "MyKafkaReceiver"
-                            }
-                        },
-                        "required": [
-                            "type"
-                        ]
-                    },
-                    "then": {
-                        "properties": {
-                            "parameters": {
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "bootstrapServers": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "description": "Адрес(а) брокеров Kafka, например 'localhost:9092'."
-                                    },
-                                    "topic": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "description": "Имя топика для публикации."
-                                    },
-                                    "clientId": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "description": "Идентификатор клиента."
-                                    },
-                                    "acks": {
-                                        "type": "string",
-                                        "description": "Требование подтверждений от брокера (например, 'all', '1', '0')."
-                                    }
-                                },
-                                "required": [
-                                    "bootstrapServers",
-                                    "topic"
                                 ]
                             }
                         }

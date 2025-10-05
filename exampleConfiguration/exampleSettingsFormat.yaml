@@ -58,7 +58,7 @@ receivers:
     trackingInstance: UsersTracking
     type: WebhookReceiver
     parameters:
-      useWindowsAuth: false
+      timeoutMs: 30000
       webhookUrl: https://hooks.analytics.com/services/your/webhook/url
       httpMethod: POST
       headers:
