@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CdcBridge.Application\CdcBridge.Application.csproj" />
+      <ProjectReference Include="..\CdcBridge.Configuration\CdcBridge.Configuration.csproj" />
+      <ProjectReference Include="..\CdcBridge.Core\CdcBridge.Core.csproj" />
+      <ProjectReference Include="..\CdcBridge.Persistence\CdcBridge.Persistence.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    </ItemGroup>
+
+</Project>
