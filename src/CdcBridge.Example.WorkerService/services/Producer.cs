@@ -11,9 +11,9 @@ public class Producer(ILogger<Producer> logger, IConfiguration configuration, Da
         {
             InsertRandomEmployee,
             UpdateRandomEmployee,
-            // InsertRandomProject,
-            // UpdateRandomProject,
-            // AssignRandomEmployeeToProject
+            InsertRandomProject,
+            UpdateRandomProject,
+            AssignRandomEmployeeToProject
         };
 
         var random = new Random();

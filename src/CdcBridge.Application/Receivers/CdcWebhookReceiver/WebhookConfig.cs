@@ -14,17 +14,17 @@ public class WebhookConfig
     /// <summary>
     /// URL webhook для отправки событий.
     /// </summary>
-    public string WebhookUrl { get; set; } = string.Empty;
+    public required string WebhookUrl { get; set; }
 
     /// <summary>
-    /// HTTP метод для запроса. По умолчанию: "POST".
+    /// HTTP метод для запроса.
     /// </summary>
-    public string HttpMethod { get; set; } = "POST";
+    public required string HttpMethod { get; set; }
 
     /// <summary>
-    /// Таймаут запроса в миллисекундах. По умолчанию: 30000 (30 секунд).
+    /// Таймаут запроса в миллисекундах.
     /// </summary>
-    public int TimeoutMs { get; set; } = 30000;
+    public required int TimeoutMs { get; set; }
 
     /// <summary>
     /// HTTP заголовки для запроса.

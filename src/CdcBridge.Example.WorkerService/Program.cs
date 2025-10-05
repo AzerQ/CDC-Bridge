@@ -1,37 +1,23 @@
-using CdcBridge.Example.WorkerService;
-using CdcBridge.Example.WorkerService.models;
+using CdcBridge.Application.DI;
 using CdcBridge.Example.WorkerService.services;
+using CdcBridge.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
+
 builder.Services.AddSingleton<DatabaseService>();
 builder.Services.AddSingleton<DataGenerator>();
-
-AppMode appMode = builder.Configuration.GetSection("AppMode").Get<AppMode>();
-
-AddHostedServicesByAppMode(appMode, builder.Services);
+builder.Services.AddHostedService<Producer>();
+builder.Services.AddCdcBridge(builder.Configuration);
 
 var host = builder.Build();
-host.Run();
 
-void AddHostedServicesByAppMode(AppMode currentAppMode, IServiceCollection services)
-{
-    switch (currentAppMode)
-    {
-        case AppMode.Producer:
-            builder.Services.AddHostedService<Producer>();
-            break;
-        
-        case AppMode.Consumer:
-            builder.Services.AddHostedService<Consumer>();
-            break;
-        
-        case AppMode.ProducerAndConsumer:
-            builder.Services
-                .AddHostedService<Consumer>()
-                .AddHostedService<Producer>();
-            break;
-        
-        default:
-            throw new ArgumentOutOfRangeException(nameof(currentAppMode), currentAppMode, null);
-    }
-}
+// Автоматическое применение миграций при старте
+// using (var scope = host.Services.CreateScope())
+// {
+//     var dbContext = scope.ServiceProvider.GetRequiredService<CdcBridgeDbContext>();
+//     dbContext.Database.Migrate();
+// }
+
+
+host.Run();

@@ -160,23 +160,48 @@ public class MsSqlChangesProvider(string connectionString)
     private async Task<(BigInteger minLsn, BigInteger maxLsn)> ResolveBounds(string trackingInstanceName, SqlConnection connection,
         CdcRequest? cdcRequest)
     {
-        BigInteger minLsn = 0, maxLsn = await Cdc.GetMaxLsnAsync(connection);;
-        
-        if (cdcRequest == null)
+        BigInteger maxLsn;
+        try
         {
+            // Пытаемся получить максимальный LSN.
+            maxLsn = await Cdc.GetMaxLsnAsync(connection);
+        }
+        catch (CdcException)
+        {
+            // Эта ошибка возникает, если в базе данных ВООБЩЕ не было залогировано ни одного изменения.
+            // В этом случае запрашивать нечего. Возвращаем "пустой" диапазон.
+            return (1, 1); // minLsn >= maxLsn приведет к возврату пустого результата.
+        }
+
+        BigInteger minLsn;
+        if (cdcRequest?.LastRowFlag != null)
+        {
+            // Если это не первый запуск, вычисляем следующий LSN от того, где остановились.
+            minLsn = await Cdc.GetNextLsnAsync(connection, BigInteger.Parse(cdcRequest.LastRowFlag));
+        }
+        else if (cdcRequest?.LastReadRowDate != null)
+        {
+            // Логика для даты (остается на будущее)
+            minLsn = await Cdc.MapTimeToLsnAsync(connection, cdcRequest.LastReadRowDate.Value, RelationalOperator.LargestLessThan);
+        }
+        else
+        {
+            // Это самый первый запуск для этого воркера.
+            // Нам нужно найти самый первый доступный LSN для этого capture instance.
             minLsn = await Cdc.GetMinLsnAsync(connection, trackingInstanceName);
         }
 
-        else if (cdcRequest.LastRowFlag != null)
+        // --- КЛЮЧЕВАЯ ПРОВЕРКА ---
+        // Если GetMinLsnAsync вернул NULL (библиотека преобразует его в 0),
+        // это значит, что для ДАННОГО capture instance еще нет изменений.
+        if (minLsn == BigInteger.Zero)
         {
-            minLsn = await Cdc.GetNextLsnAsync(connection,BigInteger.Parse(cdcRequest.LastRowFlag));
+            // Мы не можем запрашивать с LSN = 0.
+            // Возвращаем диапазон, который гарантированно будет пустым.
+            // Установка minLsn = maxLsn заставит проверку `if (minLsn >= maxLsn)` вернуть `true`.
+            return (maxLsn, maxLsn);
         }
-        
-        else if (cdcRequest.LastReadRowDate != null)
-        {
-            minLsn = await Cdc.MapTimeToLsnAsync(connection, cdcRequest.LastReadRowDate.Value, RelationalOperator.LargestLessThan);
-        }
-        
+    
         return (minLsn, maxLsn);
     }
     

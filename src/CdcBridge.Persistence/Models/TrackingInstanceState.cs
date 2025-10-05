@@ -1,21 +1,21 @@
-﻿using LiteDB;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CdcBridge.Persistence.Models;
 
 /// <summary>
-/// Представляет документ для хранения состояния обработки источника данных.
+/// Представляет объект для хранения состояния обработки источника данных.
 /// Хранит "курсор" или "указатель", с которого нужно продолжать чтение изменений.
 /// </summary>
 public class TrackingInstanceState
 {
     /// <summary>
-    /// Уникальное имя экземпляра отслеживания, используемое как идентификатор документа.
+    /// Уникальное имя экземпляра отслеживания, используемое как первичный ключ.
     /// </summary>
-    [BsonId]
-    public required string TrackingInstanceName { get; set; }
+    [Key]
+    public string TrackingInstanceName { get; set; }
 
     /// <summary>
-    /// Метка последней успешно зафиксированной в буфере строки из источника (например, LSN, timestamp, row version).
+    /// Метка последней успешно зафиксированной в буфере строки из источника (например, LSN).
     /// </summary>
     public string? LastProcessedRowLabel { get; set; }
 

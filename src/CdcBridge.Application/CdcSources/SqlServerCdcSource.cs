@@ -16,6 +16,8 @@ public class SqlServerCdcSource : ICdcSource
     private static ConcurrentDictionary<Connection, MsSqlChangesProvider> _providersCache = new();
     private static MsSqlChangesProvider GetMsSqlChangesProvider(Connection connection) =>
         _providersCache.GetOrAdd(connection, con => new MsSqlChangesProvider(con.ConnectionString));
+
+    public string Name => "SqlServer";
     
     public async Task<IEnumerable<TrackedChange>> GetChanges(TrackingInstanceInfo trackingInstanceInfo, CdcRequest? cdcRequest = null)
     {
@@ -49,21 +51,33 @@ public class SqlServerCdcSource : ICdcSource
         if (isCdcEnabledOnTable)
             return;
         
-        bool hasColumnsSpecification = trackingInstance.CapturedColumns.Count > 0;
-
-        string query = """
-                       EXECUTE sys.sp_cdc_enable_table
-                           @source_schema = @SourceSchema,
-                           @source_name = @SourceTable,
-                           @role_name = NULL,
-                           @supports_net_changes = 1
-                       """;
-
-        query = hasColumnsSpecification
-            ? $"{query},@captured_column_list = {string.Join(",", trackingInstance.CapturedColumns)}"
-            : query;
+        // Используем DynamicParameters для безопасного и корректного добавления параметров
+        var parameters = new DynamicParameters();
+        parameters.Add("@source_schema", trackingInstance.SourceSchema ?? "dbo");
+        parameters.Add("@source_name", trackingInstance.SourceTable);
+        parameters.Add("@role_name", null); // Явно указываем NULL
+        parameters.Add("@supports_net_changes", 1);
         
-        await dbConnection.ExecuteAsync(query, new {trackingInstance.SourceTable, trackingInstance.SourceSchema});
+        // Базовый вызов хранимой процедуры
+        var query = """
+                    EXECUTE sys.sp_cdc_enable_table
+                        @source_schema = @source_schema,
+                        @source_name = @source_name,
+                        @role_name = @role_name,
+                        @supports_net_changes = @supports_net_changes
+                    """;
+
+        // Если указаны колонки, добавляем соответствующий параметр
+        bool hasColumnsSpecification = trackingInstance.CapturedColumns.Any();
+        if (hasColumnsSpecification)
+        {
+            var columnList = string.Join(",", trackingInstance.CapturedColumns);
+            parameters.Add("@captured_column_list", columnList);
+            // Добавляем вызов параметра в строку запроса
+            query += ", @captured_column_list = @captured_column_list";
+        }
+
+        await dbConnection.ExecuteAsync(query, parameters);
         
     }
 

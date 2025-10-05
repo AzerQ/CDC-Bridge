@@ -208,7 +208,7 @@ public class WebhookReceiver : IReceiver, IAsyncDisposable
     {
         try
         {
-            var config = parameters.Deserialize<WebhookConfig>() 
+            var config = parameters.Deserialize<WebhookConfig>(JsonSerializerOptions.Web) 
                 ?? throw new InvalidOperationException("Failed to deserialize webhook configuration.");
 
             ValidateWebhookConfig(config);

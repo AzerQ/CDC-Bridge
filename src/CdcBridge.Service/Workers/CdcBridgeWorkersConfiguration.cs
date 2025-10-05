@@ -1,6 +1,15 @@
 ﻿namespace CdcBridge.Service.Workers;
 
-public record CleanupWorkerConfiguration(int CleanupIntervalHours, int BufferTimeToLiveHours);
+public class CleanupWorkerConfiguration {
+    public int CleanupIntervalHours { get; init; } 
+    public int BufferTimeToLiveHours { get; init; } 
 
-public record ReceiverWorkerConfiguration(int PollingIntervalMs, int BatchSize);
+}
+
+public class ReceiverWorkerConfiguration
+{
+    public int PollingIntervalMs { get; init; }
+    public int BatchSize { get; init; }
+    
+}
 

@@ -1,5 +1,4 @@
-﻿using LiteDB;
-using CdcBridge.Core.Models;
+﻿using CdcBridge.Core.Models;
 using CdcBridge.Persistence.Models;
 
 namespace CdcBridge.Persistence.Abstractions;
@@ -11,18 +10,7 @@ namespace CdcBridge.Persistence.Abstractions;
 /// </summary>
 public interface ICdcBridgeStorage
 {
-    /// <summary>
-    /// Асинхронно получает последнюю обработанную метку строки (например, LSN) для указанного экземпляра отслеживания.
-    /// </summary>
-    /// <param name="trackingInstanceName">Уникальное имя экземпляра отслеживания.</param>
-    /// <returns>Строковое представление метки последней обработанной строки или null, если обработка еще не начиналась.</returns>
     Task<string?> GetLastProcessedRowLabelAsync(string trackingInstanceName);
-
-    /// <summary>
-    /// Асинхронно сохраняет метку последней обработанной строки для указанного экземпляра отслеживания.
-    /// </summary>
-    /// <param name="trackingInstanceName">Уникальное имя экземпляра отслеживания.</param>
-    /// <param name="rowLabel">Строковое представление метки для сохранения.</param>
     Task SaveLastProcessedRowLabelAsync(string trackingInstanceName, string rowLabel);
 
     /// <summary>
@@ -38,17 +26,17 @@ public interface ICdcBridgeStorage
     /// <param name="trackingInstanceName">Имя экземпляра отслеживания, из которого нужно получить изменения.</param>
     /// <param name="batchSize">Максимальное количество изменений для получения.</param>
     /// <returns>Коллекция буферизованных изменений, ожидающих обработки данным получателем.</returns>
-    Task<IEnumerable<BufferedChange>> GetPendingChangesAsync(string receiverName, string trackingInstanceName, int batchSize);
+    Task<IEnumerable<BufferedChangeEvent>> GetPendingChangesAsync(string receiverName, string trackingInstanceName, int batchSize);
 
     /// <summary>
     /// Асинхронно обновляет статус доставки для одного буферизованного изменения и одного получателя.
     /// </summary>
-    /// <param name="changeId">Уникальный идентификатор буферизованного изменения (из LiteDB).</param>
+    /// <param name="changeId">Уникальный идентификатор буферизованного изменения (теперь Guid).</param>
     /// <param name="trackingInstanceName">Имя экземпляра отслеживания, к которому относится изменение.</param>
     /// <param name="receiverName">Уникальное имя получателя.</param>
     /// <param name="success">True, если доставка была успешной, иначе false.</param>
     /// <param name="errorMessage">Сообщение об ошибке, если доставка не удалась.</param>
-    Task UpdateChangeStatusAsync(ObjectId changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage);
+    Task UpdateChangeStatusAsync(Guid changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage);
 
     /// <summary>
     /// Асинхронно выполняет очистку хранилища, удаляя старые события, которые были успешно доставлены всем получателям.

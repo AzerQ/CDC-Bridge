@@ -11,6 +11,7 @@ using CdcBridge.Persistence;
 using CdcBridge.Persistence.Abstractions;
 using CdcBridge.Service;
 using CdcBridge.Service.Workers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace CdcBridge.Application.DI;
@@ -23,30 +24,31 @@ public static class CdcBridgeServiceCollectionExtensions
 {
     
     /// <summary>
-    /// Регистрирует реализацию хранилища на базе LiteDB и все его зависимости в DI-контейнере.
+    /// Регистрирует реализацию хранилища на базе SQLLite и все его зависимости в DI-контейнере.
     /// </summary>
     /// <param name="services">Коллекция сервисов DI.</param>
     /// <param name="configuration">Конфигурация приложения для получения настроек.</param>
     /// <returns>Та же коллекция сервисов для возможности цепочечного вызова.</returns>
-    public static IServiceCollection AddLiteDbPersistence(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddLiteDbPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         // Получаем путь к файлу БД из конфигурации.
         // Если путь не указан, используем значение по умолчанию "cdc_bridge.db".
         // Это делает конфигурацию гибкой, но не требует ее в обязательном порядке.
-        string dbPath = configuration.GetValue<string>("Persistence:LiteDbPath") ?? "cdc_bridge.db";
-
-        // Регистрируем нашу реализацию ICdcBridgeStorage как Singleton.
-        // LiteDB-Async потокобезопасна, поэтому Singleton - подходящее время жизни.
-        services.AddSingleton<ICdcBridgeStorage>(sp => 
+        string dbPath = configuration.GetValue<string>("Persistence:DbFilePath") ?? "data/cdc_bridge.db";
+        
+        var dbDirectory = Path.GetDirectoryName(dbPath);
+        if (!string.IsNullOrEmpty(dbDirectory))
         {
-            // Разрешаем зависимости, необходимые для конструктора LiteDbAsyncStorage
-            var configContext = sp.GetRequiredService<ICdcConfigurationContext>();
-            var logger = sp.GetRequiredService<ILogger<LiteDbAsyncStorage>>();
-            
-            // Создаем и возвращаем экземпляр нашего хранилища
-            return new LiteDbAsyncStorage(dbPath, configContext, logger);
+            Directory.CreateDirectory(dbDirectory);
+        }
+
+        services.AddDbContextFactory<CdcBridgeDbContext>(options =>
+        {
+            options.UseSqlite($"Data Source={dbPath}", b=> b.MigrationsAssembly("CdcBridge.Example.WorkerService"));
         });
 
+        services.AddSingleton<ICdcBridgeStorage, EfCoreSqliteStorage>();
+        
         return services;
     }
     
@@ -74,6 +76,7 @@ public static class CdcBridgeServiceCollectionExtensions
     /// </summary>
     private static IServiceCollection AddCdcBridgeCoreServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddCdcBridgeConfigurationPreprocessing(configuration);
         services.AddSingleton<ICdcConfigurationContext>(sp =>
         {
             var configPath = configuration.GetValue<string>("CdcBridge:ConfigurationPath");

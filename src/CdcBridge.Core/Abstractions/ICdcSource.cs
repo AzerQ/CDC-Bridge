@@ -9,6 +9,12 @@ namespace CdcBridge.Core.Abstractions;
 /// </summary>
 public interface ICdcSource
 {
+
+    /// <summary>
+    /// Наименование типа источника
+    /// </summary>
+    public string Name { get; }
+    
     /// <summary>
     /// Получает изменения для указанного экземпляра отслеживания, начиная с указанной позиции.
     /// </summary>
