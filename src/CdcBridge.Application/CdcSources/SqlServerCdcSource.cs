@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Concurrent;
+using System.Data;
 using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
 using CdcBridge.Core.Models;
@@ -10,25 +11,32 @@ namespace CdcBridge.Application.CdcSources;
 /// <summary>
 /// Захват данных по таблицам из SQL Server
 /// </summary>
-public class SqlServerCdcSource (Connection connection) : ICdcSource
+public class SqlServerCdcSource : ICdcSource
 {
+    private static ConcurrentDictionary<Connection, MsSqlChangesProvider> _providersCache = new();
+    private static MsSqlChangesProvider GetMsSqlChangesProvider(Connection connection) =>
+        _providersCache.GetOrAdd(connection, con => new MsSqlChangesProvider(con.ConnectionString));
     
-    private readonly MsSqlChangesProvider _msSqlChangesProvider = new (connection.ConnectionString);
-    
-    public async Task<IEnumerable<TrackedChange>> GetChanges(TrackingInstance trackingInstance, CdcRequest? cdcRequest = null)
+    public async Task<IEnumerable<TrackedChange>> GetChanges(TrackingInstanceInfo trackingInstanceInfo, CdcRequest? cdcRequest = null)
     {
-        var changedRows = await _msSqlChangesProvider.GetChangedRows(trackingInstance, cdcRequest);
-        return await _msSqlChangesProvider.MapChangeRowsToTrackedChanges(changedRows, trackingInstance);
+       var (trackingInstance, connection) = trackingInstanceInfo;
+       var msSqlChangesProvider = GetMsSqlChangesProvider(connection);
+       var changedRows = await msSqlChangesProvider.GetChangedRows(trackingInstance, cdcRequest);
+       return await msSqlChangesProvider.MapChangeRowsToTrackedChanges(changedRows, trackingInstance);
     }
 
-    public async Task<(bool isEnabled, string? message, string? dbTrackingInstanceName)> CheckCdcIsEnabled(TrackingInstance trackingInstance)
-    {
-       return await _msSqlChangesProvider.CheckCdcIsEnabled(trackingInstance);
+    public async Task<(bool isEnabled, string? message, string? dbTrackingInstanceName)> CheckCdcIsEnabled(TrackingInstanceInfo trackingInstanceInfo)
+    { 
+        var (trackingInstance, connection) = trackingInstanceInfo;
+        var msSqlChangesProvider = GetMsSqlChangesProvider(connection);
+        return await msSqlChangesProvider.CheckCdcIsEnabled(trackingInstance);
     }
 
-    public async Task EnableTrackingInstance(TrackingInstance trackingInstance)
+    public async Task EnableTrackingInstance(TrackingInstanceInfo trackingInstanceInfo)
     {
-        (bool isCdcEnabledOnDb, _) = await _msSqlChangesProvider.CheckIsCdcEnabledOnDb();
+        var (trackingInstance, connection) = trackingInstanceInfo;
+        var msSqlChangesProvider = GetMsSqlChangesProvider(connection);
+        (bool isCdcEnabledOnDb, _) = await msSqlChangesProvider.CheckIsCdcEnabledOnDb();
         using IDbConnection dbConnection = new SqlConnection(connection.ConnectionString);
         
         if (!isCdcEnabledOnDb)
@@ -36,7 +44,7 @@ public class SqlServerCdcSource (Connection connection) : ICdcSource
             await dbConnection.ExecuteAsync("EXEC sys.sp_cdc_enable_db");
         }
         
-        (bool isCdcEnabledOnTable, _) = await _msSqlChangesProvider.CheckIsCdcEnabledOnTable(trackingInstance.SourceTable, trackingInstance.SourceSchema);
+        (bool isCdcEnabledOnTable, _) = await msSqlChangesProvider.CheckIsCdcEnabledOnTable(trackingInstance.SourceTable, trackingInstance.SourceSchema);
         
         if (isCdcEnabledOnTable)
             return;
@@ -59,9 +67,10 @@ public class SqlServerCdcSource (Connection connection) : ICdcSource
         
     }
 
-    public async Task DisableTrackingInstance(TrackingInstance trackingInstance)
+    public async Task DisableTrackingInstance(TrackingInstanceInfo trackingInstanceInfo)
     {
-        (bool isEnabled, _, string? trackingInstanceName) = await CheckCdcIsEnabled(trackingInstance);
+        var (trackingInstance, connection) = trackingInstanceInfo;
+        (bool isEnabled, _, string? trackingInstanceName) = await CheckCdcIsEnabled(trackingInstanceInfo);
         
         if (isEnabled)
         {

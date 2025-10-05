@@ -13,6 +13,7 @@ namespace CdcBridge.Service.Workers.Subworkers;
 public class SourceWorker(
     ILogger<SourceWorker> logger,
     TrackingInstance trackingInstanceConfig,
+    Connection cdcConnectionConfig,
     ICdcBridgeStorage storage,
     ICdcSource cdcSource)
 {
@@ -27,7 +28,7 @@ public class SourceWorker(
                 var lastRowLabel = await storage.GetLastProcessedRowLabelAsync(trackingInstanceConfig.Name);
                 var cdcRequest = new CdcRequest { LastRowFlag = lastRowLabel };
 
-                var changes = (await cdcSource.GetChanges(trackingInstanceConfig, cdcRequest)).ToList();
+                var changes = (await cdcSource.GetChanges(new TrackingInstanceInfo(trackingInstanceConfig, cdcConnectionConfig), cdcRequest)).ToList();
 
                 if (changes.Any())
                 {

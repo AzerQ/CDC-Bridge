@@ -42,7 +42,7 @@ public class JsonPathFilter : IFilter
     /// <summary>
     /// Инициализирует новый экземпляр фильтра JsonPath.
     /// </summary>
-    public JsonPathFilter(string name)
+    public JsonPathFilter()
     {
     }
 

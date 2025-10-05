@@ -19,7 +19,7 @@ public class ComponentFactory
     /// Получает экземпляр компонента указанного типа.
     /// </summary>
     /// <typeparam name="T">Тип интерфейса компонента (e.g., IReceiver).</typeparam>
-    /// <param name="typeName">Имя типа реализации (e.g., "WebhookReceiver").</param>
+    /// <param name="typeName">Имя типа реализации (e.g., "WebhookReceiver") или поля Name в классе.</param>
     /// <returns>Экземпляр компонента.</returns>
     /// <exception cref="InvalidOperationException">Если компонент с таким именем не найден.</exception>
     public T GetInstance<T>(string typeName) where T : class
@@ -27,8 +27,13 @@ public class ComponentFactory
         // Получаем все зарегистрированные реализации интерфейса T
         var services = _serviceProvider.GetServices<T>();
         
-        // Находим нужную по имени класса
-        var service = services.FirstOrDefault(s => s.GetType().Name.Equals(typeName, StringComparison.OrdinalIgnoreCase));
+        // Находим нужную по имени класса или по полю Name
+        var service = services.FirstOrDefault(s =>
+        {
+            string serviceName = s.GetType().GetProperty("Name")?.GetValue(s) as string ?? s.GetType().Name;
+            return serviceName.Equals(typeName, StringComparison.OrdinalIgnoreCase);
+        });
+            
 
         return service ?? throw new InvalidOperationException($"Component of type '{typeName}' for interface '{typeof(T).Name}' not found or not registered in DI container.");
     }

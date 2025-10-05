@@ -17,13 +17,15 @@ public class Consumer(ILogger<Consumer> logger, IConfiguration configuration) : 
                                   throw new Exception("Default connection string is null");
         
         int secondsPollingInterval = configuration.GetValue<int>("Intervals:ChangesPollingIntervalInSeconds");
-        
-        ICdcSource cdcSource = new SqlServerCdcSource(new Connection
+
+        var connection = new Connection
         {
             ConnectionString = connectionString,
             Name = "ExampleConnection",
             Type = "SqlServerCdcSource"
-        });
+        };
+        
+        
         var trackingInstance = new TrackingInstance
         {
             Name = "captureEmployees",
@@ -31,13 +33,17 @@ public class Consumer(ILogger<Consumer> logger, IConfiguration configuration) : 
             SourceTable = "employee",
             SourceSchema = "dbo"
         };
+        
+        var trackingInstanceInfo = new TrackingInstanceInfo(trackingInstance, connection);
+        
+        ICdcSource cdcSource = new SqlServerCdcSource();
 
-        await cdcSource.EnableTrackingInstance(trackingInstance);
+        await cdcSource.EnableTrackingInstance(trackingInstanceInfo);
         CdcRequest? cdcRequest = null;
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var changes = await cdcSource.GetChanges(trackingInstance, cdcRequest);
+            var changes = await cdcSource.GetChanges(trackingInstanceInfo, cdcRequest);
             var trackedChanges = changes.ToList();
 
             if (trackedChanges.Count != 0)

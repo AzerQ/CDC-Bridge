@@ -1,7 +1,6 @@
 ﻿using CdcBridge.Configuration;
 using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
-using CdcBridge.Core.Models;
 using CdcBridge.Service.Workers.Subworkers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,13 +35,15 @@ public class CdcBridgeOrchestrator : IHostedService
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         // Запуск Source Workers
-        foreach (var tiConfig in _configContext.CdcSettings.TrackingInstances.Where(t => t.Active))
+        foreach (var trackingInstanceConfig in _configContext.CdcSettings.TrackingInstances.Where(t => t.Active))
         {
+            var connectionConfig = _configContext.GetConnection(trackingInstanceConfig.Connection)!;
             var worker = new SourceWorker(
                 _serviceProvider.GetRequiredService<ILogger<SourceWorker>>(),
-                tiConfig,
+                trackingInstanceConfig,
+                connectionConfig,
                 _serviceProvider.GetRequiredService<ICdcBridgeStorage>(),
-                _serviceProvider.GetRequiredService<ComponentFactory>().GetInstance<ICdcSource>(_configContext.GetConnection(tiConfig.Connection)!.Type)
+                _serviceProvider.GetRequiredService<ComponentFactory>().GetInstance<ICdcSource>(connectionConfig.Type)
             );
             _workerTasks.Add(worker.ExecuteAsync(_cancellationTokenSource.Token));
         }
