@@ -6,6 +6,7 @@ using CdcBridge.Application.CdcSources;
 using CdcBridge.Application.Filters;
 using CdcBridge.Application.Transformers;
 using CdcBridge.Application.Receivers.CdcWebhookReceiver;
+using CdcBridge.Configuration.Preprocessing;
 using CdcBridge.Persistence;
 using CdcBridge.Persistence.Abstractions;
 using CdcBridge.Service;
@@ -81,7 +82,8 @@ public static class CdcBridgeServiceCollectionExtensions
                 throw new FileNotFoundException("CDC Bridge configuration YAML file not found.", configPath);
             }
 
-            return new CdcConfigurationContextBuilder()
+            var yamlProcessor = sp.GetRequiredService<YamlProcessor>();
+            return new CdcConfigurationContextBuilder(yamlProcessor)
                 .AddConfigurationFromFile(configPath)
                 .Build();
         });
@@ -150,6 +152,20 @@ public static class CdcBridgeServiceCollectionExtensions
                 configuration.GetSection("CdcBridge:WorkersConfiguration:CleanupWorker"))
             .Configure<ReceiverWorkerConfiguration>(
                 configuration.GetSection("CdcBridge:WorkersConfiguration:ReceiverWorker"));
+    }
+    
+    /// <summary>
+    /// Регистрирует систему препроцессинга YAML.
+    /// </summary>
+    private static IServiceCollection AddCdcBridgeConfigurationPreprocessing(this IServiceCollection services, IConfiguration configuration)
+    {
+        // Регистрируем все реализации препроцессоров
+        services.AddSingleton<IYamlPreprocessor>(sp => new ConfigurationValuePreprocessor(configuration));
+        services.AddSingleton<IYamlPreprocessor, FileContentPreprocessor>();
+        
+        // Регистрируем оркестратор, который получит все IYamlPreprocessor
+        services.AddSingleton<YamlProcessor>();
+        return services;
     }
     
 }

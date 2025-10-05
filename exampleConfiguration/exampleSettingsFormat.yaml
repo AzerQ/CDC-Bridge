@@ -6,7 +6,7 @@ connections:
     name: WorkersTrackingDb
     description: Подключение к базе данных приложения для покупок
     type: SqlServer
-    connectionString: "Data Source=aqpc; Initial Catalog=mssql_cdc_test;User ID=sa;Password=YourStrong@Password123;Encrypt=True;TrustServerCertificate=True;Application Name=CDC_BRIDGE_EXAMPLE"
+    connectionString: Configuration("ConnectionStrings:DefaultConnection")
     active: true
 
 trackingInstances:
@@ -62,7 +62,7 @@ receivers:
       webhookUrl: https://hooks.analytics.com/services/your/webhook/url
       httpMethod: POST
       headers:
-        Authorization: Bearer 49aQVmpt3GpGGq8PqzT2MGEJGHMdDrDoQ5u9moADuh7oKdhsSSfxOpOvymfkH7GD
+        Authorization: Bearer Configuration("ApiKeys:Analytics")
         Content-Type: application/json
         User-Agent: ChangeTracker/1.0
         Accept: application/json
