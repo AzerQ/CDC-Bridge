@@ -41,7 +41,7 @@ graph TD
 
     subgraph "Хранилище Состояния (CdcBridge.Persistence)"
         style Storage fill:#e1d5e7,stroke:#9673a6
-        Storage[ICdcBridgeStorage<br/>(SQLite / EF Core)]
+        Storage[ICdcBridgeStorage SQLite / EF Core]
     end
 
     subgraph "Внешние Системы"
