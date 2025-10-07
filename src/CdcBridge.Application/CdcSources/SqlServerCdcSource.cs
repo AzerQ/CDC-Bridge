@@ -13,9 +13,13 @@ namespace CdcBridge.Application.CdcSources;
 /// </summary>
 public class SqlServerCdcSource : ICdcSource
 {
-    private static ConcurrentDictionary<Connection, MsSqlChangesProvider> _providersCache = new();
-    private static MsSqlChangesProvider GetMsSqlChangesProvider(Connection connection) =>
-        _providersCache.GetOrAdd(connection, con => new MsSqlChangesProvider(con.ConnectionString));
+    private static readonly ConcurrentDictionary<Connection, IMsSqlChangesProvider> ProvidersCache = new();
+    
+    public static Func<Connection, IMsSqlChangesProvider> ProviderFactory { get; set; } =
+        con => new MsSqlChangesProvider(con.ConnectionString);
+
+    private static IMsSqlChangesProvider GetMsSqlChangesProvider(Connection connection) =>
+        ProvidersCache.GetOrAdd(connection, ProviderFactory);
 
     public string Name => "SqlServer";
     

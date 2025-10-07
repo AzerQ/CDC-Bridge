@@ -11,7 +11,7 @@ using MsSqlCdc;
 
 namespace CdcBridge.Application.CdcSources;
 
-public class MsSqlChangesProvider(string connectionString)
+public class MsSqlChangesProvider(string connectionString) : IMsSqlChangesProvider
 {
     public async Task<IEnumerable<TrackedChange>> MapChangeRowsToTrackedChanges(
         IEnumerable<AllChangeRow> changedRows,

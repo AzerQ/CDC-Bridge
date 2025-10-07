@@ -19,8 +19,8 @@ public class ReceiverValidator : AbstractValidator<Receiver>
         {
             switch (receiver.Type)
             {
-                case "WebhookReceiver":
-                    ValidateWebhookReceiver(receiver, context);
+                case "webhook":
+                    // Currently no specific validation for webhook receiver
                     break;
                 
                 default:

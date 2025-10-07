@@ -1,0 +1,20 @@
+connections:
+  - name: "TestConnection"
+    type: "mssql"
+    # Missing connectionString
+
+receivers:
+  - name: "TestReceiver"
+    type: "webhook"
+    properties:
+      url: "http://localhost:5000/webhook"
+
+trackingInstances:
+  - name: "TestTrackingInstance"
+    connection: "TestConnection"
+    source:
+      type: "mssql-cdc"
+      properties:
+        table: "dbo.TestTable"
+    pipeline:
+      - receiver: "TestReceiver"

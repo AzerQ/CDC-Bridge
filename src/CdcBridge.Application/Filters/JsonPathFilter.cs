@@ -74,77 +74,63 @@ public class JsonPathFilter : IFilter
     {
         if (trackedChange == null)
             throw new ArgumentNullException(nameof(trackedChange));
-        if (parameters.ValueKind == JsonValueKind.Null)
+        if (parameters.ValueKind == JsonValueKind.Null || parameters.ValueKind == JsonValueKind.Undefined)
             throw new ArgumentNullException(nameof(parameters));
 
+        
+        string? expression = null;
         try
         {
-            // Получаем JsonPath выражение из параметров
-            var expression = GetJsonPathExpression(parameters);
-            
-            // Сериализуем TrackedChange в JToken для оценки JsonPath
-            var changeJson = SerializeTrackedChange(trackedChange);
-            var changeJToken = JToken.FromObject(changeJson);
-            
-            // Выполняем JsonPath выражение
-            var results = JToken.Parse(expression) is JArray array 
-                ? EvaluateJsonPathArray(changeJToken, array) 
-                : EvaluateJsonPathSingle(changeJToken, expression);
-            
+            expression = GetJsonPathExpression(parameters);
+            var changeJObject = ConvertTrackedChangeToJObject(trackedChange);
+
+            // JsonPath-выражения, начинающиеся с `$[?`, предназначены для фильтрации массивов.
+            // Мы должны обернуть наш единственный объект в массив, чтобы такое выражение работало.
+            JToken tokenToQuery = expression.StartsWith("$[?") ? new JArray(changeJObject) : changeJObject;
+
+            var results = tokenToQuery.SelectTokens(expression);
             return results.Any();
         }
         catch (Newtonsoft.Json.JsonException ex)
         {
-            throw new InvalidOperationException(
-                $"Invalid JsonPath expression in filter '{Name}'.", ex);
-        }
-        catch (Exception ex) when (ex is not InvalidOperationException)
-        {
-            throw new InvalidOperationException(
-                $"Error evaluating JsonPath expression in filter '{Name}'.", ex);
+            // Оборачиваем исключение парсинга JsonPath в наше собственное для ясности.
+            throw new InvalidOperationException($"Invalid JsonPath expression: '{expression}'", ex);
         }
     }
 
-    private static string GetJsonPathExpression(JsonElement parameters)
+    private static JObject ConvertTrackedChangeToJObject(TrackedChange trackedChange)
     {
-        if (parameters.TryGetProperty("expression", out var expressionProp) &&
-            expressionProp.ValueKind == JsonValueKind.String)
+        // Вручную создаем JObject, чтобы обеспечить правильную сериализацию вложенного JsonElement.
+        // Это дает нам полный контроль над структурой JSON.
+        var changeJObject = new JObject
         {
-            return expressionProp.GetString() ?? 
-                   throw new InvalidOperationException("JsonPath expression cannot be null or empty.");
-        }
-
-        throw new InvalidOperationException(
-            "JsonPath filter requires 'expression' parameter of type string.");
-    }
-
-    private static object SerializeTrackedChange(TrackedChange change)
-    {
-        return new
-        {
-            change.ChangeType,
-            change.TrackingInstance,
-            change.CreatedAt,
-            change.RowLabel,
-            change.Data
-        };
-    }
-
-    private static IEnumerable<JToken> EvaluateJsonPathArray(JToken changeJToken, JArray expressions)
-    {
-        foreach (var expressionToken in expressions)
-        {
-            var expression = expressionToken.ToString();
-            var matches = changeJToken.SelectTokens(expression);
-            foreach (var match in matches)
+            ["changeType"] = trackedChange.ChangeType.ToString(),
+            ["trackingInstance"] = trackedChange.TrackingInstance,
+            ["createdAt"] = trackedChange.CreatedAt,
+            ["rowLabel"] = trackedChange.RowLabel,
+            ["data"] = new JObject
             {
-                yield return match;
+                ["old"] = trackedChange.Data.Old.HasValue ? JToken.Parse(trackedChange.Data.Old.Value.GetRawText()) : null,
+                ["new"] = trackedChange.Data.New.HasValue ? JToken.Parse(trackedChange.Data.New.Value.GetRawText()) : null
             }
-        }
+        };
+        return changeJObject;
     }
 
-    private static IEnumerable<JToken> EvaluateJsonPathSingle(JToken changeJToken, string expression)
+    private string GetJsonPathExpression(JsonElement parameters)
     {
-        return changeJToken.SelectTokens(expression);
+        if (!parameters.TryGetProperty("expression", out var expressionElement))
+        {
+            throw new InvalidOperationException($"Filter '{Name}' requires 'expression' parameter.");
+        }
+
+        var expression = expressionElement.GetString();
+        if (string.IsNullOrWhiteSpace(expression))
+        {
+            throw new InvalidOperationException($"JsonPath expression for filter '{Name}' cannot be empty.");
+        }
+
+        return expression;
     }
 }
+
