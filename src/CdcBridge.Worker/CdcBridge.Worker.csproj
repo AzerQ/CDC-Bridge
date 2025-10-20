@@ -19,5 +19,6 @@
       <ProjectReference Include="..\CdcBridge.Service\CdcBridge.Service.csproj" />
       <ProjectReference Include="..\CdcBridge.Application\CdcBridge.Application.csproj" />
       <ProjectReference Include="..\CdcBridge.Configuration\CdcBridge.Configuration.csproj" />
+      <ProjectReference Include="..\CdcBridge.Logging\CdcBridge.Logging.csproj" />
     </ItemGroup>
 </Project>

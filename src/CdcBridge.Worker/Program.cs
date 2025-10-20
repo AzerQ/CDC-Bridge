@@ -1,8 +1,12 @@
 using CdcBridge.Application.DI;
 using CdcBridge.Persistence;
+using CdcBridge.Logging;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+// Add structured logging
+builder.Services.AddStructuredLogging(builder.Configuration);
 
 builder.Services.AddCdcBridge(builder.Configuration);
 
