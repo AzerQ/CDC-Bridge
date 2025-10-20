@@ -1,0 +1,88 @@
+﻿# -----------------------------------------------------------------
+# Тестовая конфигурация для захвата ВСЕХ изменений
+# из CdcBridge.Example.WorkerService
+# -----------------------------------------------------------------
+$schema: ./settings.schema.json
+connections:
+  - name: ExampleDbConnection
+    description: "Подключение к тестовой БД с сотрудниками, отделами и проектами"
+    type: SqlServer # Используем наш готовый SqlServerCdcSource
+    # ВАЖНО: Убедитесь, что эта строка подключения совпадает с той, что использует Producer
+    connectionString: Configuration("ConnectionStrings:default")
+    active: true
+
+trackingInstances:
+  - name: EmployeeTracking
+    sourceTable: employee
+    sourceSchema: dbo
+    capturedColumns: # Указываем все значимые колонки
+      - id
+      - first_name
+      - last_name
+      - email
+      - phone
+      - department_id
+      - salary
+      - hire_date
+      - is_active
+    connection: ExampleDbConnection
+    active: true
+    checkIntervalInSeconds: 5 # Опрашиваем почаще для тестов
+
+  - name: DepartmentTracking
+    sourceTable: department
+    sourceSchema: dbo
+    capturedColumns:
+      - id
+      - name
+      - budget
+      - location
+      - manager_id
+    connection: ExampleDbConnection
+    active: true
+    checkIntervalInSeconds: 5
+
+  - name: ProjectTracking
+    sourceTable: project
+    sourceSchema: dbo
+    capturedColumns:
+      - id
+      - name
+      - description
+      - start_date
+      - end_date
+      - budget
+      - status
+      - department_id
+    connection: ExampleDbConnection
+    active: true
+    checkIntervalInSeconds: 5
+
+receivers:
+  - name: EmployeeWebhook
+    description: "Отправляет все изменения по сотрудникам на тестовый приемник"
+    trackingInstance: EmployeeTracking
+    type: WebhookReceiver # Наш получатель "из коробки"
+    # Фильтр и трансформер не указываем, чтобы получить "сырые" данные
+    parameters:
+      webhookUrl: "http://localhost:5091/webhooks/employee" # URL нашего нового ASP.NET приложения
+      httpMethod: POST
+      timeoutMs: 20000
+
+  - name: DepartmentWebhook
+    description: "Отправляет все изменения по отделам на тестовый приемник"
+    trackingInstance: DepartmentTracking
+    type: WebhookReceiver
+    parameters:
+      webhookUrl: "http://localhost:5091/webhooks/department"
+      httpMethod: POST
+      timeoutMs: 20000
+
+  - name: ProjectWebhook
+    description: "Отправляет все изменения по проектам на тестовый приемник"
+    trackingInstance: ProjectTracking
+    type: WebhookReceiver
+    parameters:
+      webhookUrl: "http://localhost:5091/webhooks/project"
+      httpMethod: POST
+      timeoutMs: 20000

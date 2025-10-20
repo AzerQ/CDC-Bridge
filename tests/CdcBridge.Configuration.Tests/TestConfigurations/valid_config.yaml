@@ -1,0 +1,18 @@
+connections:
+  - name: "TestConnection"
+    type: "mssql"
+    connectionString: "Server=test;Database=test;User Id=test;Password=test;"
+
+receivers:
+  - name: "TestReceiver"
+    type: "webhook"
+    trackingInstance: "TestTrackingInstance"
+    parameters:
+      url: "http://localhost:5000/webhook"
+
+trackingInstances:
+  - name: "TestTrackingInstance"
+    connection: "TestConnection"
+    sourceTable: "dbo.TestTable"
+    capturedColumns: ["ID", "Value"]
+    checkIntervalInSeconds: 10

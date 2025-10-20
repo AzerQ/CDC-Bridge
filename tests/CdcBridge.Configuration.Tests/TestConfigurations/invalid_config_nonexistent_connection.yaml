@@ -1,0 +1,20 @@
+connections:
+  - name: "TestConnection"
+    type: "mssql"
+    connectionString: "Server=test;Database=test;User Id=test;Password=test;"
+
+receivers:
+  - name: "TestReceiver"
+    type: "webhook"
+    properties:
+      url: "http://localhost:5000/webhook"
+
+trackingInstances:
+  - name: "TestTrackingInstance"
+    connection: "NonExistentConnection" # Invalid connection name
+    source:
+      type: "mssql-cdc"
+      properties:
+        table: "dbo.TestTable"
+    pipeline:
+      - receiver: "TestReceiver"

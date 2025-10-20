@@ -1,0 +1,6 @@
+@CdcBridge.Example.WebhookReceiver_HostAddress = http://localhost:5091
+
+GET {{CdcBridge.Example.WebhookReceiver_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,68 @@
+$schema: ./settings.schema.json
+# Формат настроек для трекинга изменений в таблицах
+
+connections:
+  - # Объект с настройками подключения к источнику данных (БД)
+    name: WorkersTrackingDb
+    description: Подключение к базе данных приложения для покупок
+    type: SqlServer
+    connectionString: Configuration("ConnectionStrings:DefaultConnection")
+    active: true
+
+trackingInstances:
+  - # Объект с настройками трекинга изменений в таблице
+    sourceTable: users
+    capturedColumns:
+      - name
+      - email
+      - status
+    description: Захват основных изменений в таблице пользователей
+    connection: WorkersTrackingDb
+    active: true
+    checkIntervalInSeconds: 15
+    name: UsersTracking
+
+filters:
+  - # Примеры фильтров для трекинга изменений (Привязаны к trackingInstance)
+    description: Фильтр для отслеживания только изменений статуса пользователя с active на inactive
+    name: ActiveToInactive
+    trackingInstance: UsersTracking
+    type: JsonPathFilter
+    parameters:
+      expression: $[?(@.data.old.status == 'active' && @.data.new.status == 'inactive')]
+
+  - description: Фильтр для отслеживания удаленных пользователей
+    name: DeletedUsers
+    trackingInstance: UsersTracking
+    type: JsonPathFilter
+    parameters:
+      expression: $[?(@.eventType == 'Delete')]
+
+transformers:
+  - # Примеры трансформеров для преобразования данных перед отправкой получателям
+    name: AnalyticsServiceTransformer
+    description: Преобразователь для отправки данных в аналитический сервис
+    trackingInstance: UsersTracking
+    type: JSONataTransformer
+    parameters:
+      transformation: >-
+        { 'userId': data.new.id, 'displayName': data.new.name, 'login': data.new.email, 'isActive': data.new.status = 'active', 'timeStamp': createdAt }
+
+receivers:
+  - retryCount: 3
+    name: AnalyticsWebHook
+    # Примеры получателей для отправки уведомлений об изменениях
+    description: Получатель для отправки уведомлений на WebHook в сервис аналитики
+    filter: ActiveToInactive
+    transformer: AnalyticsServiceTransformer
+    trackingInstance: UsersTracking
+    type: WebhookReceiver
+    parameters:
+      timeoutMs: 30000
+      webhookUrl: https://hooks.analytics.com/services/your/webhook/url
+      httpMethod: POST
+      headers:
+        Authorization: Bearer Configuration("ApiKeys:Analytics")
+        Content-Type: application/json
+        User-Agent: ChangeTracker/1.0
+        Accept: application/json
