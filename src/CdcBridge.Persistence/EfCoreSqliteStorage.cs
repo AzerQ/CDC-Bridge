@@ -90,7 +90,7 @@ public class EfCoreSqliteStorage : ICdcBridgeStorage
         return changes;
     }
 
-    public async Task UpdateChangeStatusAsync(Guid changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage)
+    public async Task UpdateChangeStatusAsync(Guid changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage, long? deliveryTimeMs = null)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync();
         var status = await context.ReceiverDeliveryStatuses
@@ -102,6 +102,28 @@ public class EfCoreSqliteStorage : ICdcBridgeStorage
             status.AttemptCount++;
             status.LastAttemptAtUtc = DateTime.UtcNow;
             status.ErrorDescription = errorMessage;
+            
+            // Track delivery time
+            if (deliveryTimeMs.HasValue)
+            {
+                status.LastDeliveryTimeMs = deliveryTimeMs.Value;
+                
+                // Calculate average delivery time for successful attempts
+                if (success)
+                {
+                    if (status.AverageDeliveryTimeMs.HasValue)
+                    {
+                        // Incremental average: newAvg = oldAvg + (newValue - oldAvg) / newCount
+                        status.AverageDeliveryTimeMs = status.AverageDeliveryTimeMs.Value + 
+                            (deliveryTimeMs.Value - status.AverageDeliveryTimeMs.Value) / status.AttemptCount;
+                    }
+                    else
+                    {
+                        status.AverageDeliveryTimeMs = deliveryTimeMs.Value;
+                    }
+                }
+            }
+            
             await context.SaveChangesAsync();
         }
     }

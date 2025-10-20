@@ -2,6 +2,7 @@
 using CdcBridge.Core.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using ICdcBridgeStorage = CdcBridge.Persistence.Abstractions.ICdcBridgeStorage;
 
 namespace CdcBridge.Service.Workers.Subworkers;
@@ -37,6 +38,21 @@ public class ReceiverWorker(
                     var change = bufferedChange.Change;
                     bool success = false;
                     string? error = null;
+                    long? deliveryTimeMs = null;
+
+                    // Get the delivery status for this receiver
+                    var deliveryStatus = bufferedChange.DeliveryStatuses.FirstOrDefault(s => s.ReceiverName == receiverConfig.Name);
+                    
+                    // Check if retry limit is exceeded
+                    if (deliveryStatus != null && receiverConfig.RetryCount > 0 && deliveryStatus.AttemptCount >= receiverConfig.RetryCount)
+                    {
+                        logger.LogWarning("Change {ChangeId} for receiver {ReceiverName} exceeded retry limit ({RetryCount}). Marking as failed.",
+                            bufferedChange.Id, receiverConfig.Name, receiverConfig.RetryCount);
+                        
+                        await storage.UpdateChangeStatusAsync(bufferedChange.Id, receiverConfig.TrackingInstance, receiverConfig.Name, 
+                            false, $"Exceeded retry limit of {receiverConfig.RetryCount} attempts");
+                        continue;
+                    }
 
                     try
                     {
@@ -60,19 +76,35 @@ public class ReceiverWorker(
                             change.Data.TransformedData = transformer.Transform(change, transformerConfig.Parameters);
                         }
 
-                        // 3. Отправка (здесь можно в будущем добавить Polly)
+                        // 3. Отправка с измерением времени
+                        var stopwatch = Stopwatch.StartNew();
                         var result = await receiver.SendAsync(change, receiverConfig.Parameters);
+                        stopwatch.Stop();
+                        
+                        deliveryTimeMs = stopwatch.ElapsedMilliseconds;
                         success = result.Status == Core.Models.ReceiverProcessStatus.Success;
                         error = result.ErrorDescription;
+                        
+                        if (success)
+                        {
+                            logger.LogInformation("Successfully sent change {ChangeId} to receiver {ReceiverName} in {DeliveryTime}ms",
+                                bufferedChange.Id, receiverConfig.Name, deliveryTimeMs);
+                        }
+                        else
+                        {
+                            logger.LogWarning("Failed to send change {ChangeId} to receiver {ReceiverName}. Attempt {AttemptCount}. Error: {Error}",
+                                bufferedChange.Id, receiverConfig.Name, deliveryStatus?.AttemptCount ?? 0 + 1, error);
+                        }
                     }
                     catch (Exception ex)
                     {
                         success = false;
                         error = ex.Message;
-                        logger.LogError(ex, "Unhandled exception while processing change {ChangeId} for receiver {ReceiverName}", bufferedChange.Id, receiverConfig.Name);
+                        logger.LogError(ex, "Unhandled exception while processing change {ChangeId} for receiver {ReceiverName}. Attempt {AttemptCount}",
+                            bufferedChange.Id, receiverConfig.Name, deliveryStatus?.AttemptCount ?? 0 + 1);
                     }
 
-                    await storage.UpdateChangeStatusAsync(bufferedChange.Id, receiverConfig.TrackingInstance, receiverConfig.Name, success, error);
+                    await storage.UpdateChangeStatusAsync(bufferedChange.Id, receiverConfig.TrackingInstance, receiverConfig.Name, success, error, deliveryTimeMs);
                 }
             }
             catch (Exception ex)

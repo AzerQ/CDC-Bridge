@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcBridge.Example.WebhookRe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcBridge.Example.WorkerService", "examples\CdcBridge.Example.WorkerService\CdcBridge.Example.WorkerService.csproj", "{4D1C5703-A0A9-401A-8938-2F2616196901}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcBridge.Logging", "src\CdcBridge.Logging\CdcBridge.Logging.csproj", "{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,18 @@ Global
 		{4D1C5703-A0A9-401A-8938-2F2616196901}.Release|x64.Build.0 = Release|Any CPU
 		{4D1C5703-A0A9-401A-8938-2F2616196901}.Release|x86.ActiveCfg = Release|Any CPU
 		{4D1C5703-A0A9-401A-8938-2F2616196901}.Release|x86.Build.0 = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|x64.Build.0 = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Debug|x86.Build.0 = Debug|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|x64.ActiveCfg = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|x64.Build.0 = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|x86.ActiveCfg = Release|Any CPU
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,5 +203,6 @@ Global
 		{4AD4920D-34D5-475C-8D54-A30B3906D09B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{2B9397FB-4B82-460B-B2C7-1610DBF6F4F2} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
 		{4D1C5703-A0A9-401A-8938-2F2616196901} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
+		{03B20DB9-705A-4FB1-8CB7-27CF0A2E1A39} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

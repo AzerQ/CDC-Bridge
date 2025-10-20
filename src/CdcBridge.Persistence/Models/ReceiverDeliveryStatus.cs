@@ -57,4 +57,14 @@ public class ReceiverDeliveryStatus
     /// Описание ошибки, если последняя попытка была неудачной.
     /// </summary>
     public string? ErrorDescription { get; set; }
+
+    /// <summary>
+    /// Время, затраченное на последнюю попытку доставки, в миллисекундах.
+    /// </summary>
+    public long? LastDeliveryTimeMs { get; set; }
+
+    /// <summary>
+    /// Среднее время доставки по всем успешным попыткам, в миллисекундах.
+    /// </summary>
+    public double? AverageDeliveryTimeMs { get; set; }
 }

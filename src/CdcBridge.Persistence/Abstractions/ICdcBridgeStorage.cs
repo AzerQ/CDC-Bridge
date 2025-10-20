@@ -36,7 +36,8 @@ public interface ICdcBridgeStorage
     /// <param name="receiverName">Уникальное имя получателя.</param>
     /// <param name="success">True, если доставка была успешной, иначе false.</param>
     /// <param name="errorMessage">Сообщение об ошибке, если доставка не удалась.</param>
-    Task UpdateChangeStatusAsync(Guid changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage);
+    /// <param name="deliveryTimeMs">Время доставки в миллисекундах.</param>
+    Task UpdateChangeStatusAsync(Guid changeId, string trackingInstanceName, string receiverName, bool success, string? errorMessage, long? deliveryTimeMs = null);
 
     /// <summary>
     /// Асинхронно выполняет очистку хранилища, удаляя старые события, которые были успешно доставлены всем получателям.
