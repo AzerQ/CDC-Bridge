@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  cdcbridge-host:
+    build:
+      context: .
+      dockerfile: src/CdcBridge.Host/Dockerfile
+    container_name: cdcbridge-host
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      # Данные (база данных и логи)
+      - ./data:/app/data
+      # Конфигурация CDC Bridge
+      - ./cdc-settings.yaml:/app/cdc-settings.yaml
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+      - CdcBridge__ConfigurationPath=/app/cdc-settings.yaml
+      - Persistence__DbFilePath=/app/data/cdc_bridge.db
+      - Logging__SqliteDbPath=/app/data/logs.db
+      # JWT настройки (замените на свои!)
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=CdcBridge.Host
+      - Jwt__Audience=CdcBridge.Client
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: cdcbridge-network
