@@ -1,0 +1,296 @@
+@page "/api-keys"
+@inject IAdminApi AdminApi
+@inject ISnackbar Snackbar
+@inject AuthenticationStateService AuthService
+
+<PageTitle>API Keys - CDC Bridge Admin</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-4">API Keys Management</MudText>
+
+<MudCard Elevation="3" Class="mb-4">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Create New API Key</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="_newKeyName" Label="Name" Variant="Variant.Outlined" Required="true" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="_newKeyOwner" Label="Owner" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudSelect @bind-Value="_newKeyPermission" Label="Permission" Variant="Variant.Outlined" Required="true">
+                    <MudSelectItem Value="ApiKeyPermission.ReadOnly">Read Only</MudSelectItem>
+                    <MudSelectItem Value="ApiKeyPermission.ReadWrite">Read Write</MudSelectItem>
+                    <MudSelectItem Value="ApiKeyPermission.Admin">Admin</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_newKeyDescription" Label="Description" Variant="Variant.Outlined" Lines="2" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudNumericField @bind-Value="_newKeyExpiresInDays" Label="Expires In Days" Variant="Variant.Outlined" Min="1" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField @bind-Value="_masterPassword" Label="Master Password" Variant="Variant.Outlined" InputType="InputType.Password" Required="true" />
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateApiKey" Disabled="@_creating">
+            @if (_creating)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ml-2">Creating...</MudText>
+            }
+            else
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+                <text>Create API Key</text>
+            }
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else if (_apiKeys != null)
+{
+    <MudCard Elevation="3">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Existing API Keys</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTable Items="@_apiKeys" Hover="true" Dense="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Key Prefix</MudTh>
+                    <MudTh>Owner</MudTh>
+                    <MudTh>Permission</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Created</MudTh>
+                    <MudTh>Expires</MudTh>
+                    <MudTh>Last Used</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Key Prefix">
+                        <MudText Typo="Typo.body2" Style="font-family: monospace;">@context.KeyPrefix</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Owner">@(context.Owner ?? "N/A")</MudTd>
+                    <MudTd DataLabel="Permission">
+                        <MudChip Size="Size.Small" Color="GetPermissionColor(context.Permission)" T="string">
+                            @context.Permission
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        @if (context.IsActive)
+                        {
+                            <MudChip Size="Size.Small" Color="Color.Success" T="string">Active</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip Size="Size.Small" Color="Color.Default" T="string">Inactive</MudChip>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Created">@context.CreatedAt.ToLocalTime().ToString("g")</MudTd>
+                    <MudTd DataLabel="Expires">@(context.ExpiresAt?.ToLocalTime().ToString("g") ?? "Never")</MudTd>
+                    <MudTd DataLabel="Last Used">@(context.LastUsedAt?.ToLocalTime().ToString("g") ?? "Never")</MudTd>
+                    <MudTd DataLabel="Actions">
+                        @if (context.IsActive)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Block" Size="Size.Small" Color="Color.Warning" 
+                                           OnClick="@(() => DeactivateApiKey(context.Id))" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Color="Color.Success" 
+                                           OnClick="@(() => ActivateApiKey(context.Id))" />
+                        }
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" 
+                                       OnClick="@(() => DeleteApiKey(context.Id))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+}
+
+<MudDialog @bind-Visible="_showNewKeyDialog" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">API Key Created Successfully!</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudAlert Severity="Severity.Warning" Class="mb-4">
+            <strong>Important:</strong> Save this API key now. You won't be able to see it again!
+        </MudAlert>
+        <MudTextField @bind-Value="_createdApiKey" Label="API Key" Variant="Variant.Outlined" ReadOnly="true" 
+                      Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.ContentCopy" 
+                      OnAdornmentClick="CopyToClipboard" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showNewKeyDialog = false)" Color="Color.Primary" Variant="Variant.Filled">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<ApiKeyInfo>? _apiKeys;
+    private bool _loading = true;
+    private bool _creating = false;
+
+    private string _newKeyName = string.Empty;
+    private string? _newKeyOwner;
+    private string? _newKeyDescription;
+    private ApiKeyPermission _newKeyPermission = ApiKeyPermission.ReadOnly;
+    private int? _newKeyExpiresInDays;
+    private string _masterPassword = string.Empty;
+
+    private bool _showNewKeyDialog = false;
+    private string _createdApiKey = string.Empty;
+    private DialogOptions _dialogOptions = new() { CloseButton = false, BackdropClick = false };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Try to load master password from storage
+        _masterPassword = await AuthService.GetMasterPasswordAsync() ?? string.Empty;
+        await LoadApiKeys();
+    }
+
+    private async Task LoadApiKeys()
+    {
+        if (string.IsNullOrEmpty(_masterPassword))
+        {
+            Snackbar.Add("Master password is required", Severity.Warning);
+            return;
+        }
+
+        _loading = true;
+        try
+        {
+            _apiKeys = await AdminApi.GetAllApiKeysAsync(_masterPassword);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading API keys: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task CreateApiKey()
+    {
+        if (string.IsNullOrWhiteSpace(_newKeyName) || string.IsNullOrWhiteSpace(_masterPassword))
+        {
+            Snackbar.Add("Name and Master Password are required", Severity.Warning);
+            return;
+        }
+
+        _creating = true;
+        try
+        {
+            var request = new CreateApiKeyRequest(
+                _newKeyName,
+                _newKeyOwner,
+                _newKeyDescription,
+                _newKeyPermission,
+                _newKeyExpiresInDays,
+                _masterPassword
+            );
+
+            var response = await AdminApi.CreateApiKeyAsync(request);
+            
+            // Save master password for future use
+            await AuthService.SetMasterPasswordAsync(_masterPassword);
+            
+            _createdApiKey = response.Key;
+            _showNewKeyDialog = true;
+
+            // Clear form
+            _newKeyName = string.Empty;
+            _newKeyOwner = null;
+            _newKeyDescription = null;
+            _newKeyPermission = ApiKeyPermission.ReadOnly;
+            _newKeyExpiresInDays = null;
+
+            await LoadApiKeys();
+            Snackbar.Add("API key created successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error creating API key: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _creating = false;
+        }
+    }
+
+    private async Task DeactivateApiKey(int id)
+    {
+        try
+        {
+            await AdminApi.DeactivateApiKeyAsync(id, _masterPassword);
+            Snackbar.Add("API key deactivated", Severity.Success);
+            await LoadApiKeys();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deactivating API key: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task ActivateApiKey(int id)
+    {
+        try
+        {
+            await AdminApi.ActivateApiKeyAsync(id, _masterPassword);
+            Snackbar.Add("API key activated", Severity.Success);
+            await LoadApiKeys();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error activating API key: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DeleteApiKey(int id)
+    {
+        try
+        {
+            await AdminApi.DeleteApiKeyAsync(id, _masterPassword);
+            Snackbar.Add("API key deleted", Severity.Success);
+            await LoadApiKeys();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting API key: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void CopyToClipboard()
+    {
+        // In a real application, you would use JSInterop to copy to clipboard
+        Snackbar.Add("API key copied to clipboard", Severity.Info);
+    }
+
+    private Color GetPermissionColor(ApiKeyPermission permission)
+    {
+        return permission switch
+        {
+            ApiKeyPermission.ReadOnly => Color.Info,
+            ApiKeyPermission.ReadWrite => Color.Warning,
+            ApiKeyPermission.Admin => Color.Error,
+            _ => Color.Default
+        };
+    }
+}

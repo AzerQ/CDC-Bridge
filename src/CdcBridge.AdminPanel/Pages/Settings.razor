@@ -1,0 +1,116 @@
+@page "/settings"
+@inject AuthenticationStateService AuthService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>Settings - CDC Bridge Admin</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-4">Settings</MudText>
+
+<MudCard Elevation="3" Class="mb-4">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">API Connection</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_apiBaseUrl" Label="API Base URL" Variant="Variant.Outlined" 
+                              Placeholder="https://localhost:5001" Required="true" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_apiKey" Label="API Key" Variant="Variant.Outlined" 
+                              InputType="InputType.Password" />
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveSettings">
+            <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" /> Save Settings
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ClearSettings">
+            <MudIcon Icon="@Icons.Material.Filled.Clear" Class="mr-2" /> Clear Settings
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+<MudCard Elevation="3">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">About</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudStack Spacing="2">
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Primary">Application</MudText>
+                <MudText Typo="Typo.body1">CDC Bridge Admin Panel</MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Primary">Version</MudText>
+                <MudText Typo="Typo.body1">1.0.0</MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Primary">Description</MudText>
+                <MudText Typo="Typo.body2">
+                    A modern admin panel for managing CDC Bridge - a Change Data Capture bridge system that captures 
+                    database changes and forwards them to configured receivers.
+                </MudText>
+            </div>
+        </MudStack>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private string _apiBaseUrl = "https://localhost:5001";
+    private string _apiKey = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var storedBaseUrl = await AuthService.GetApiBaseUrlAsync();
+        if (!string.IsNullOrEmpty(storedBaseUrl))
+        {
+            _apiBaseUrl = storedBaseUrl;
+        }
+
+        var storedApiKey = await AuthService.GetApiKeyAsync();
+        if (!string.IsNullOrEmpty(storedApiKey))
+        {
+            _apiKey = storedApiKey;
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        if (string.IsNullOrWhiteSpace(_apiBaseUrl))
+        {
+            Snackbar.Add("API Base URL is required", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await AuthService.SetApiBaseUrlAsync(_apiBaseUrl);
+            
+            if (!string.IsNullOrWhiteSpace(_apiKey))
+            {
+                await AuthService.SetApiKeyAsync(_apiKey);
+            }
+
+            Snackbar.Add("Settings saved successfully! Please reload the page for changes to take effect.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving settings: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task ClearSettings()
+    {
+        await AuthService.RemoveApiKeyAsync();
+        await AuthService.RemoveMasterPasswordAsync();
+        _apiKey = string.Empty;
+        Snackbar.Add("Settings cleared", Severity.Info);
+    }
+}

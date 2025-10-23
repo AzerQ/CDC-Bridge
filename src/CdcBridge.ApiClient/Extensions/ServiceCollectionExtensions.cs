@@ -37,6 +37,22 @@ public static class ServiceCollectionExtensions
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
             .AddPolicyHandler(retryPolicy);
 
+        services.AddRefitClient<Interfaces.IEventsApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
+            .AddPolicyHandler(retryPolicy);
+
+        services.AddRefitClient<Interfaces.ILogsApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
+            .AddPolicyHandler(retryPolicy);
+
+        services.AddRefitClient<Interfaces.IConfigurationApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
+            .AddPolicyHandler(retryPolicy);
+
+        services.AddRefitClient<Interfaces.IAdminApi>()
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
+            .AddPolicyHandler(retryPolicy);
+
         return services;
     }
 }
