@@ -1,0 +1,127 @@
+@page "/configuration"
+@inject IConfigurationApi ConfigurationApi
+@inject ISnackbar Snackbar
+
+<PageTitle>Configuration - CDC Bridge Admin</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-4">Configuration</MudText>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12">
+            <MudCard Elevation="3">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">
+                            <MudIcon Icon="@Icons.Material.Filled.Storage" Class="mr-2" />
+                            Tracking Instances
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (_trackingInstances != null && _trackingInstances.Any())
+                    {
+                        <MudTable Items="@_trackingInstances" Hover="true" Dense="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Capture Instance</MudTh>
+                                <MudTh>Polling Interval (s)</MudTh>
+                                <MudTh>Batch Size</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Name">
+                                    <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Capture Instance">@context.CaptureInstance</MudTd>
+                                <MudTd DataLabel="Polling Interval">@context.PollingIntervalSeconds</MudTd>
+                                <MudTd DataLabel="Batch Size">@context.BatchSize</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info">No tracking instances configured.</MudAlert>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudCard Elevation="3">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">
+                            <MudIcon Icon="@Icons.Material.Filled.Send" Class="mr-2" />
+                            Receivers
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (_receivers != null && _receivers.Any())
+                    {
+                        <MudTable Items="@_receivers" Hover="true" Dense="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Type</MudTh>
+                                <MudTh>URL</MudTh>
+                                <MudTh>Timeout (s)</MudTh>
+                                <MudTh>Retry Count</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Name">
+                                    <MudText Typo="Typo.body1" Style="font-weight: 500;">@context.Name</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Type">
+                                    <MudChip Size="Size.Small" Color="Color.Info" T="string">@context.Type</MudChip>
+                                </MudTd>
+                                <MudTd DataLabel="URL">
+                                    <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.85rem;">@context.Url</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Timeout">@(context.TimeoutSeconds?.ToString() ?? "N/A")</MudTd>
+                                <MudTd DataLabel="Retry Count">@(context.RetryCount?.ToString() ?? "N/A")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info">No receivers configured.</MudAlert>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private bool _loading = true;
+    private List<TrackingInstanceDto>? _trackingInstances;
+    private List<ReceiverDto>? _receivers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadConfiguration();
+    }
+
+    private async Task LoadConfiguration()
+    {
+        _loading = true;
+        try
+        {
+            _trackingInstances = await ConfigurationApi.GetTrackingInstancesAsync();
+            _receivers = await ConfigurationApi.GetReceiversAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading configuration: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

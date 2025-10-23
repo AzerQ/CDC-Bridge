@@ -1,0 +1,159 @@
+@page "/events"
+@inject IEventsApi EventsApi
+@inject ISnackbar Snackbar
+
+<PageTitle>Events - CDC Bridge Admin</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-4">Events</MudText>
+
+<MudCard Elevation="3" Class="mb-4">
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudTextField @bind-Value="_filterTrackingInstance" Label="Tracking Instance" Variant="Variant.Outlined" Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField @bind-Value="_filterReceiver" Label="Receiver" Variant="Variant.Outlined" Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="_filterStatus" Label="Status" Variant="Variant.Outlined" Clearable="true">
+                    <MudSelectItem Value="@("Pending")">Pending</MudSelectItem>
+                    <MudSelectItem Value="@("Success")">Success</MudSelectItem>
+                    <MudSelectItem Value="@("Failed")">Failed</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3" Class="d-flex align-center">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyFilters" FullWidth="true">
+                    <MudIcon Icon="@Icons.Material.Filled.Search" Class="mr-2" /> Search
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else if (_events != null)
+{
+    <MudCard Elevation="3">
+        <MudCardContent>
+            <MudTable Items="@_events.Items" Hover="true" Dense="true" Striped="true" Loading="@_loading">
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>Tracking Instance</MudTh>
+                    <MudTh>Row Label</MudTh>
+                    <MudTh>Operation</MudTh>
+                    <MudTh>Buffered At</MudTh>
+                    <MudTh>Statuses</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="ID">
+                        <MudText Typo="Typo.body2" Style="font-family: monospace; font-size: 0.75rem;">
+                            @context.Id.ToString().Substring(0, 8)...
+                        </MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Tracking Instance">@context.TrackingInstanceName</MudTd>
+                    <MudTd DataLabel="Row Label">@context.RowLabel</MudTd>
+                    <MudTd DataLabel="Operation">
+                        <MudChip Size="Size.Small" Color="GetOperationColor(context.OperationType)" T="string">
+                            @context.OperationType
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Buffered At">@context.BufferedAt.ToLocalTime().ToString("g")</MudTd>
+                    <MudTd DataLabel="Statuses">
+                        @foreach (var status in context.DeliveryStatuses)
+                        {
+                            <MudChip Size="Size.Small" Color="GetStatusColor(status.Status)" Class="mr-1" T="string">
+                                @status.ReceiverName: @status.Status
+                            </MudChip>
+                        }
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+                </PagerContent>
+            </MudTable>
+        </MudCardContent>
+        <MudCardActions>
+            <MudPagination Count="@_events.TotalPages" Selected="@_currentPage" SelectedChanged="OnPageChanged" Color="Color.Primary" />
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    private PagedResultDto<EventDto>? _events;
+    private bool _loading = true;
+    private int _currentPage = 1;
+    private int _pageSize = 50;
+    
+    private string? _filterTrackingInstance;
+    private string? _filterReceiver;
+    private string? _filterStatus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        _loading = true;
+        try
+        {
+            var query = new EventQueryDto
+            {
+                Page = _currentPage,
+                PageSize = _pageSize,
+                TrackingInstanceName = _filterTrackingInstance,
+                ReceiverName = _filterReceiver,
+                Status = _filterStatus
+            };
+            
+            _events = await EventsApi.GetEventsAsync(query);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading events: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task ApplyFilters()
+    {
+        _currentPage = 1;
+        await LoadEvents();
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        _currentPage = page;
+        await LoadEvents();
+    }
+
+    private Color GetStatusColor(string status)
+    {
+        return status.ToLower() switch
+        {
+            "pending" => Color.Warning,
+            "success" => Color.Success,
+            "failed" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetOperationColor(string? operation)
+    {
+        return operation?.ToLower() switch
+        {
+            "insert" => Color.Success,
+            "update" => Color.Info,
+            "delete" => Color.Error,
+            _ => Color.Default
+        };
+    }
+}
