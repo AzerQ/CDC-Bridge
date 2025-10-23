@@ -9,7 +9,7 @@ namespace CdcBridge.Host.Api.Services;
 /// <summary>
 /// Сервис для работы с событиями изменений данных.
 /// </summary>
-public class EventsService
+public class EventsService : IEventsService
 {
     private readonly IDbContextFactory<CdcBridgeDbContext> _dbContextFactory;
 

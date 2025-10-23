@@ -11,41 +11,43 @@ namespace CdcBridge.Host.Api.Controllers;
 [Route("api/[controller]")]
 public class EventsController : ControllerBase
 {
-    private readonly EventsService _eventsService;
+    private readonly IEventsService _eventsService;
 
-    public EventsController(EventsService eventsService)
-  {
+    public EventsController(IEventsService eventsService)
+    {
         _eventsService = eventsService;
     }
 
     /// <summary>
-  /// Получает список событий с фильтрацией и пагинацией.
+    /// Получает список событий с фильтрацией и пагинацией.
     /// </summary>
     /// <param name="query">Параметры запроса.</param>
     /// <returns>Список событий.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResultDto<EventDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResultDto<EventDto>>> GetEvents([FromQuery] EventQueryDto query)
- {
-  var events = await _eventsService.GetEventsAsync(query);
+    {
+        var events = await _eventsService.GetEventsAsync(query);
         return Ok(events);
     }
 
     /// <summary>
-  /// Получает детальную информацию о конкретном событии.
+    /// Получает детальную информацию о конкретном событии.
     /// </summary>
-  /// <param name="id">Идентификатор события.</param>
-    /// <returns>Информация о событии.</returns>
+    /// <param name="id">Идентификатор события.</param>
+    /// <returns>Детальная информация о событии.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EventDto>> GetEventById(Guid id)
     {
-     var eventDto = await _eventsService.GetEventByIdAsync(id);
-     if (eventDto == null)
+        var eventDto = await _eventsService.GetEventByIdAsync(id);
+        
+        if (eventDto == null)
         {
-        return NotFound();
+            return NotFound();
         }
-    return Ok(eventDto);
+        
+        return Ok(eventDto);
     }
 }

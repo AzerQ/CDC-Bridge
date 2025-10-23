@@ -8,7 +8,7 @@ namespace CdcBridge.Host.Api.Services;
 /// <summary>
 /// Сервис для получения метрик системы CDC Bridge.
 /// </summary>
-public class MetricsService
+public class MetricsService : IMetricsService
 {
     private readonly IDbContextFactory<CdcBridgeDbContext> _dbContextFactory;
 

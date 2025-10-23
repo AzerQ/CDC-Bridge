@@ -11,9 +11,9 @@ namespace CdcBridge.Host.Api.Controllers;
 [Route("api/[controller]")]
 public class MetricsController : ControllerBase
 {
-    private readonly MetricsService _metricsService;
+    private readonly IMetricsService _metricsService;
 
-    public MetricsController(MetricsService metricsService)
+    public MetricsController(IMetricsService metricsService)
     {
         _metricsService = metricsService;
     }

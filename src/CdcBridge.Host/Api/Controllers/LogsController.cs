@@ -11,9 +11,9 @@ namespace CdcBridge.Host.Api.Controllers;
 [Route("api/[controller]")]
 public class LogsController : ControllerBase
 {
-    private readonly LogsService _logsService;
+    private readonly ILogsService _logsService;
 
-    public LogsController(LogsService logsService)
+    public LogsController(ILogsService logsService)
     {
         _logsService = logsService;
     }

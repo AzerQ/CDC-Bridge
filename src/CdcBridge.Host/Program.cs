@@ -16,9 +16,9 @@ builder.Services.AddStructuredLogging(builder.Configuration);
 builder.Services.AddCdcBridge(builder.Configuration);
 
 // Add API services
-builder.Services.AddScoped<MetricsService>();
-builder.Services.AddScoped<EventsService>();
-builder.Services.AddScoped<LogsService>();
+builder.Services.AddScoped<IMetricsService, MetricsService>();
+builder.Services.AddScoped<IEventsService, EventsService>();
+builder.Services.AddScoped<ILogsService, LogsService>();
 
 // Add controllers
 builder.Services.AddControllers();
@@ -87,6 +87,9 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<CdcBridgeDbContext>();
     dbContext.Database.Migrate();
 }
+
+// Записываем тестовый лог для инициализации Serilog SQLite таблицы
+app.Logger.LogInformation("CDC Bridge Host is starting...");
 
 // Configure the HTTP request pipeline
 
