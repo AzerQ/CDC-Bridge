@@ -13,21 +13,7 @@ public class ReceiverValidator : AbstractValidator<Receiver>
         RuleFor(x => x.TrackingInstance).NotEmpty().WithMessage("Receiver tracking instance is required");
         RuleFor(x => x.Type).NotEmpty().WithMessage("Receiver type is required");
         RuleFor(x => x.RetryCount).GreaterThanOrEqualTo(0).WithMessage("Retry count must be greater than or equal to 0");
-        
-        // Проверка параметров в зависимости от типа ресивера
-        RuleFor(x => x).Custom((receiver, context) =>
-        {
-            switch (receiver.Type)
-            {
-                case "webhook":
-                    // Currently no specific validation for webhook receiver
-                    break;
-                
-                default:
-                    context.AddFailure($"Unknown receiver type: {receiver.Type} for receiver '{receiver.Name}'");
-                    break;
-            }
-        });
+       
         
         // Валидация опциональных ссылок на filter и transformer
         When(x => !string.IsNullOrEmpty(x.Filter), () =>

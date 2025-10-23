@@ -21,4 +21,8 @@
       <ProjectReference Include="..\CdcBridge.Core\CdcBridge.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
+
 </Project>

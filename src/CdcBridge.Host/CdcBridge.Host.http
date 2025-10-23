@@ -1,0 +1,75 @@
+@CdcBridge_HostAddress = http://localhost:8080
+@jwt_token = your_jwt_token_here
+
+### Get Metrics
+GET {{CdcBridge_HostAddress}}/api/metrics
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Events
+GET {{CdcBridge_HostAddress}}/api/events?page=1&pageSize=50
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Events with Filters
+GET {{CdcBridge_HostAddress}}/api/events?trackingInstanceName=MyTable&status=Pending&page=1&pageSize=20
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Event by ID
+@eventId = 00000000-0000-0000-0000-000000000000
+GET {{CdcBridge_HostAddress}}/api/events/{{eventId}}
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Logs
+GET {{CdcBridge_HostAddress}}/api/logs?level=Error&page=1&pageSize=100
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Logs with Search
+GET {{CdcBridge_HostAddress}}/api/logs?messageSearch=exception&fromDate=2024-01-01&page=1&pageSize=50
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Configuration
+GET {{CdcBridge_HostAddress}}/api/configuration
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Tracking Instances
+GET {{CdcBridge_HostAddress}}/api/configuration/tracking-instances
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Get Receivers
+GET {{CdcBridge_HostAddress}}/api/configuration/receivers
+Authorization: Bearer {{jwt_token}}
+Accept: application/json
+
+###
+
+### Health Check (no auth required)
+GET {{CdcBridge_HostAddress}}/health
+Accept: application/json
+
+###
+
+### Swagger UI (Development only)
+GET {{CdcBridge_HostAddress}}/swagger
