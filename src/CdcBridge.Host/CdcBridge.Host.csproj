@@ -25,4 +25,10 @@
     <ItemGroup>
       <Folder Include="data\" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Update="cdc-settings.yaml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>
