@@ -1,13 +1,11 @@
 using CdcBridge.Application.DI;
 using CdcBridge.Host.Api.Services;
+using CdcBridge.Host.Middleware;
 using CdcBridge.Logging;
 using CdcBridge.Persistence;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,36 +29,10 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+      .AllowAnyMethod()
+   .AllowAnyHeader();
     });
 });
-
-// Configure JWT authentication
-var jwtKey = builder.Configuration.GetValue<string>("Jwt:Key") ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong!";
-var jwtIssuer = builder.Configuration.GetValue<string>("Jwt:Issuer") ?? "CdcBridge.Host";
-var jwtAudience = builder.Configuration.GetValue<string>("Jwt:Audience") ?? "CdcBridge.Client";
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-    };
-});
-
-builder.Services.AddAuthorization();
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -68,32 +40,32 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "CDC Bridge API",
+    Title = "CDC Bridge API",
         Version = "v1",
-        Description = "API для мониторинга и управления CDC Bridge"
+        Description = "API для мониторинга и управления CDC Bridge. Требуется API ключ в заголовке X-API-Key."
     });
 
-    // Add JWT authentication to Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // Add API Key authentication to Swagger
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Description = "API Key authentication. Add your API key in the X-API-Key header. Example: \"your-api-key-here\"",
+        Name = "X-API-Key",
+    In = ParameterLocation.Header,
+   Type = SecuritySchemeType.ApiKey,
+    Scheme = "ApiKeyScheme"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
+ {
+         new OpenApiSecurityScheme
+   {
+    Reference = new OpenApiReference
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
+      Type = ReferenceType.SecurityScheme,
+         Id = "ApiKey"
+      }
+        },
             Array.Empty<string>()
         }
     });
@@ -117,19 +89,24 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
+
+// Global exception handler должен быть первым
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CDC Bridge API v1");
+   c.SwaggerEndpoint("/swagger/v1/swagger.json", "CDC Bridge API v1");
     });
 }
 
 app.UseHttpsRedirection();
 app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
+
+// Используем API Key аутентификацию вместо JWT
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 app.MapControllers();
 

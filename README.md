@@ -154,47 +154,44 @@ docker run -d \
 
 ## ?? Безопасность
 
-### JWT Аутентификация
+### API Key Authentication
 
-API защищён JWT токенами. Настройка в `appsettings.json`:
+API использует систему API ключей для аутентификации. Подробнее в `API_KEY_AUTHENTICATION.md`.
 
+**Быстрый старт:**
+
+1. Настройте мастер-пароль в `appsettings.json`:
 ```json
 {
-  "Jwt": {
-    "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLong!",
-    "Issuer": "CdcBridge.Host",
-    "Audience": "CdcBridge.Client",
-    "ExpirationMinutes": 60
+  "ApiKeys": {
+    "MasterPassword": "YOUR_SECURE_MASTER_PASSWORD"
   }
 }
 ```
 
-?? **Важно:** Замените ключ на свой собственный в production окружении!
+2. Создайте API ключ (только с localhost):
+```bash
+curl -X POST http://localhost:8080/api/admin/apikeys \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My Application",
+    "owner": "Team Name",
+    "permission": 1,
+    "expiresInDays": 365,
+    "masterPassword": "YOUR_MASTER_PASSWORD"
+  }'
+```
 
-## ?? Мониторинг
+3. Используйте ключ в запросах:
+```bash
+curl -H "X-API-Key: your-api-key-here" http://localhost:8080/api/metrics
+```
 
-### Метрики
+?? **ВАЖНО:** Измените мастер-пароль в production окружении!
 
-Доступны через API endpoint `GET /api/metrics`:
-- Количество событий в буфере
-- Статусы доставки (pending, success, failed)
-- Среднее время доставки
-- Метрики по каждому получателю
-
-### Логи
-
-- Структурированные логи в SQLite
-- Доступ через API: `GET /api/logs`
-- Фильтрация по уровню, времени, тексту
-
-## ?? Вклад в проект
-
-Приветствуются pull requests! Для больших изменений сначала откройте issue для обсуждения.
-
-## ?? Лицензия
-
-[Укажите вашу лицензию]
-
-## ?? Контакты
-
-[Укажите контактную информацию]
+**Возможности:**
+- ? ReadOnly / ReadWrite права доступа
+- ? Настраиваемый срок действия
+- ? Управление только с localhost
+- ? Защита мастер-паролем
+- ? Отслеживание использования

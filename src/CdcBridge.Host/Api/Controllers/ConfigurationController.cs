@@ -1,5 +1,4 @@
 using CdcBridge.Configuration;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CdcBridge.Host.Api.Controllers;
@@ -9,16 +8,13 @@ namespace CdcBridge.Host.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class ConfigurationController : ControllerBase
 {
     private readonly ICdcConfigurationContext _configContext;
-    private readonly ILogger<ConfigurationController> _logger;
 
-    public ConfigurationController(ICdcConfigurationContext configContext, ILogger<ConfigurationController> logger)
+    public ConfigurationController(ICdcConfigurationContext configContext)
     {
-        _configContext = configContext;
-        _logger = logger;
+     _configContext = configContext;
     }
 
     /// <summary>
@@ -29,16 +25,8 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult GetConfiguration()
     {
-        try
-        {
-            var settings = _configContext.CdcSettings;
-            return Ok(settings);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving configuration");
-            return StatusCode(500, "Internal server error");
-        }
+ var settings = _configContext.CdcSettings;
+        return Ok(settings);
     }
 
     /// <summary>
@@ -46,19 +34,11 @@ public class ConfigurationController : ControllerBase
     /// </summary>
     /// <returns>Список tracking instances.</returns>
     [HttpGet("tracking-instances")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+ [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult GetTrackingInstances()
     {
-        try
-        {
-            var trackingInstances = _configContext.CdcSettings.TrackingInstances;
-            return Ok(trackingInstances);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving tracking instances");
-            return StatusCode(500, "Internal server error");
-        }
+        var trackingInstances = _configContext.CdcSettings.TrackingInstances;
+     return Ok(trackingInstances);
     }
 
     /// <summary>
@@ -69,15 +49,7 @@ public class ConfigurationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult GetReceivers()
     {
-        try
-        {
-            var receivers = _configContext.CdcSettings.Receivers;
-            return Ok(receivers);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving receivers");
-            return StatusCode(500, "Internal server error");
-        }
+        var receivers = _configContext.CdcSettings.Receivers;
+ return Ok(receivers);
     }
 }

@@ -3,19 +3,69 @@ using System;
 using CdcBridge.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CdcBridge.Example.WorkerService.Migrations
+namespace CdcBridge.Persistence.Migrations
 {
     [DbContext(typeof(CdcBridgeDbContext))]
-    partial class CdcBridgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251023171551_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.20");
+
+            modelBuilder.Entity("CdcBridge.Core.Models.ApiKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Owner")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Permission")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("ApiKeys");
+                });
 
             modelBuilder.Entity("CdcBridge.Persistence.Models.BufferedChangeEvent", b =>
                 {
@@ -52,6 +102,9 @@ namespace CdcBridge.Example.WorkerService.Migrations
                     b.Property<int>("AttemptCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double?>("AverageDeliveryTimeMs")
+                        .HasColumnType("REAL");
+
                     b.Property<Guid>("BufferedChangeEventId")
                         .HasColumnType("TEXT");
 
@@ -60,6 +113,9 @@ namespace CdcBridge.Example.WorkerService.Migrations
 
                     b.Property<DateTime?>("LastAttemptAtUtc")
                         .HasColumnType("TEXT");
+
+                    b.Property<long?>("LastDeliveryTimeMs")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ReceiverName")
                         .IsRequired()

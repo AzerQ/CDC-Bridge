@@ -12,7 +12,7 @@ using CdcBridge.Persistence.Abstractions;
 using CdcBridge.Service;
 using CdcBridge.Service.Workers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace CdcBridge.Application.DI;
 
@@ -29,7 +29,7 @@ public static class CdcBridgeServiceCollectionExtensions
     /// <param name="services">Коллекция сервисов DI.</param>
     /// <param name="configuration">Конфигурация приложения для получения настроек.</param>
     /// <returns>Та же коллекция сервисов для возможности цепочечного вызова.</returns>
-    private static IServiceCollection AddLiteDbPersistence(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         // Получаем путь к файлу БД из конфигурации.
         // Если путь не указан, используем значение по умолчанию "cdc_bridge.db".
@@ -44,7 +44,7 @@ public static class CdcBridgeServiceCollectionExtensions
 
         services.AddDbContextFactory<CdcBridgeDbContext>(options =>
         {
-            options.UseSqlite($"Data Source={dbPath}", b=> b.MigrationsAssembly("CdcBridge.Example.WorkerService"));
+            options.UseSqlite($"Data Source={dbPath}", b=> b.MigrationsAssembly("CdcBridge.Persistence"));
         });
 
         services.AddSingleton<ICdcBridgeStorage, EfCoreSqliteStorage>();
@@ -101,7 +101,7 @@ public static class CdcBridgeServiceCollectionExtensions
     private static IServiceCollection AddCdcBridgePersistence(this IServiceCollection services, IConfiguration configuration)
     {
         // Используем метод расширения из самого слоя Persistence
-        services.AddLiteDbPersistence(configuration);
+        services.AddPersistence(configuration);
         return services;
     }
 
