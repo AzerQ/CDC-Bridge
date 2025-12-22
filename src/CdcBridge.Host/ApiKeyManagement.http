@@ -1,10 +1,10 @@
 ### CDC Bridge API - API Key Management Examples
 
-# Эти запросы работают только с localhost!
+# Р­С‚Рё Р·Р°РїСЂРѕСЃС‹ СЂР°Р±РѕС‚Р°СЋС‚ С‚РѕР»СЊРєРѕ СЃ localhost!
 @masterPassword = CHANGE_THIS_MASTER_PASSWORD_IN_PRODUCTION
 @baseUrl = http://localhost:8080
 
-### 1. Создать ReadWrite API ключ для production
+### 1. РЎРѕР·РґР°С‚СЊ ReadWrite API РєР»СЋС‡ РґР»СЏ production
 POST {{baseUrl}}/api/admin/apikeys
 Content-Type: application/json
 
@@ -17,7 +17,7 @@ Content-Type: application/json
   "masterPassword": "{{masterPassword}}"
 }
 
-### 2. Создать ReadOnly API ключ для мониторинга
+### 2. РЎРѕР·РґР°С‚СЊ ReadOnly API РєР»СЋС‡ РґР»СЏ РјРѕРЅРёС‚РѕСЂРёРЅРіР°
 POST {{baseUrl}}/api/admin/apikeys
 Content-Type: application/json
 
@@ -30,7 +30,7 @@ Content-Type: application/json
   "masterPassword": "{{masterPassword}}"
 }
 
-### 3. Создать временный API ключ для тестирования
+### 3. РЎРѕР·РґР°С‚СЊ РІСЂРµРјРµРЅРЅС‹Р№ API РєР»СЋС‡ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 POST {{baseUrl}}/api/admin/apikeys
 Content-Type: application/json
 
@@ -43,38 +43,38 @@ Content-Type: application/json
   "masterPassword": "{{masterPassword}}"
 }
 
-### 4. Получить список всех API ключей
+### 4. РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… API РєР»СЋС‡РµР№
 GET {{baseUrl}}/api/admin/apikeys?masterPassword={{masterPassword}}
 
-### 5. Деактивировать API ключ (замените {id} на реальный ID)
+### 5. Р”РµР°РєС‚РёРІРёСЂРѕРІР°С‚СЊ API РєР»СЋС‡ (Р·Р°РјРµРЅРёС‚Рµ {id} РЅР° СЂРµР°Р»СЊРЅС‹Р№ ID)
 PUT {{baseUrl}}/api/admin/apikeys/1/deactivate?masterPassword={{masterPassword}}
 
-### 6. Активировать API ключ
+### 6. РђРєС‚РёРІРёСЂРѕРІР°С‚СЊ API РєР»СЋС‡
 PUT {{baseUrl}}/api/admin/apikeys/1/activate?masterPassword={{masterPassword}}
 
-### 7. Удалить API ключ
+### 7. РЈРґР°Р»РёС‚СЊ API РєР»СЋС‡
 DELETE {{baseUrl}}/api/admin/apikeys/1?masterPassword={{masterPassword}}
 
 ###############################################################################
-# Примеры использования API ключей для доступа к API
+# РџСЂРёРјРµСЂС‹ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ API РєР»СЋС‡РµР№ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє API
 ###############################################################################
 
-# Замените значение на реальный API ключ, полученный при создании
+# Р—Р°РјРµРЅРёС‚Рµ Р·РЅР°С‡РµРЅРёРµ РЅР° СЂРµР°Р»СЊРЅС‹Р№ API РєР»СЋС‡, РїРѕР»СѓС‡РµРЅРЅС‹Р№ РїСЂРё СЃРѕР·РґР°РЅРёРё
 @apiKey = your-api-key-here
 
-### 8. Получить метрики (ReadOnly ключ достаточно)
+### 8. РџРѕР»СѓС‡РёС‚СЊ РјРµС‚СЂРёРєРё (ReadOnly РєР»СЋС‡ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ)
 GET {{baseUrl}}/api/metrics
 X-API-Key: {{apiKey}}
 
-### 9. Получить события (ReadOnly ключ достаточно)
+### 9. РџРѕР»СѓС‡РёС‚СЊ СЃРѕР±С‹С‚РёСЏ (ReadOnly РєР»СЋС‡ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ)
 GET {{baseUrl}}/api/events?receiverName=WebhookReceiver&limit=10
 X-API-Key: {{apiKey}}
 
-### 10. Получить логи (ReadOnly ключ достаточно)
+### 10. РџРѕР»СѓС‡РёС‚СЊ Р»РѕРіРё (ReadOnly РєР»СЋС‡ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ)
 GET {{baseUrl}}/api/logs?level=Error&limit=20
 X-API-Key: {{apiKey}}
 
-### 11. Тест с ReadOnly ключом на POST запрос (должен вернуть 403)
+### 11. РўРµСЃС‚ СЃ ReadOnly РєР»СЋС‡РѕРј РЅР° POST Р·Р°РїСЂРѕСЃ (РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ 403)
 POST {{baseUrl}}/api/events/resend
 X-API-Key: {{apiKey}}
 Content-Type: application/json
@@ -83,9 +83,9 @@ Content-Type: application/json
   "eventId": "some-guid"
 }
 
-### 12. Проверка работы API без ключа (должен вернуть 401)
+### 12. РџСЂРѕРІРµСЂРєР° СЂР°Р±РѕС‚С‹ API Р±РµР· РєР»СЋС‡Р° (РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ 401)
 GET {{baseUrl}}/api/metrics
 
-### 13. Проверка с неверным API ключом (должен вернуть 401)
+### 13. РџСЂРѕРІРµСЂРєР° СЃ РЅРµРІРµСЂРЅС‹Рј API РєР»СЋС‡РѕРј (РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ 401)
 GET {{baseUrl}}/api/metrics
 X-API-Key: invalid-key-12345
