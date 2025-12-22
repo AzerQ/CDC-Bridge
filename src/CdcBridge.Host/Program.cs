@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(c =>
     {
     Title = "CDC Bridge API",
         Version = "v1",
-        Description = "API для мониторинга и управления CDC Bridge. Требуется API ключ в заголовке X-API-Key."
+        Description = "API РґР»СЏ РјРѕРЅРёС‚РѕСЂРёРЅРіР° Рё СѓРїСЂР°РІР»РµРЅРёСЏ CDC Bridge. РўСЂРµР±СѓРµС‚СЃСЏ API РєР»СЋС‡ РІ Р·Р°РіРѕР»РѕРІРєРµ X-API-Key."
     });
 
     // Add API Key authentication to Swagger
@@ -81,19 +81,19 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Автоматическое применение миграций при старте
+// РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РїСЂРёРјРµРЅРµРЅРёРµ РјРёРіСЂР°С†РёР№ РїСЂРё СЃС‚Р°СЂС‚Рµ
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<CdcBridgeDbContext>();
     dbContext.Database.Migrate();
 }
 
-// Записываем тестовый лог для инициализации Serilog SQLite таблицы
+// Р—Р°РїРёСЃС‹РІР°РµРј С‚РµСЃС‚РѕРІС‹Р№ Р»РѕРі РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Serilog SQLite С‚Р°Р±Р»РёС†С‹
 app.Logger.LogInformation("CDC Bridge Host is starting...");
 
 // Configure the HTTP request pipeline
 
-// Global exception handler должен быть первым
+// Global exception handler РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРµСЂРІС‹Рј
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -108,7 +108,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
-// Используем API Key аутентификацию вместо JWT
+// РСЃРїРѕР»СЊР·СѓРµРј API Key Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёСЋ РІРјРµСЃС‚Рѕ JWT
 app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
 app.MapControllers();
