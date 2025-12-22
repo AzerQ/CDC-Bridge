@@ -1,0 +1,2 @@
+﻿Import-Module -Name .\Common.psm1
+New-Service -Name "$ServiceName" -BinaryPathName "$ServiceExecutable" -Credential "$ServiceUser" -Description "$ServiceDescription" -DisplayName "$ServiceName" -StartupType Automatic

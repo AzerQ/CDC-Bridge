@@ -9,6 +9,8 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddWindowsService();
+
 // Add structured logging
 builder.Services.AddStructuredLogging(builder.Configuration);
 
