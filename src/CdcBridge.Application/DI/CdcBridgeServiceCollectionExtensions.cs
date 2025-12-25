@@ -13,6 +13,7 @@ using CdcBridge.Service;
 using CdcBridge.Service.Workers;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using CdcBridge.Application.Filters.StateTransition;
 
 namespace CdcBridge.Application.DI;
 
@@ -76,6 +77,7 @@ public static class CdcBridgeServiceCollectionExtensions
     /// </summary>
     private static IServiceCollection AddCdcBridgeCoreServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
         services.AddCdcBridgeConfigurationPreprocessing(configuration);
         services.AddSingleton<ICdcConfigurationContext>(sp =>
         {
@@ -117,6 +119,8 @@ public static class CdcBridgeServiceCollectionExtensions
         // Фильтры (IFilter)
         services.AddTransient<JsonPathFilter>();
         services.AddTransient<IFilter, JsonPathFilter>(s => s.GetRequiredService<JsonPathFilter>());
+        services.AddTransient<StateTransitionFilter>();
+        services.AddTransient<IFilter, StateTransitionFilter>(s => s.GetRequiredService<StateTransitionFilter>());
 
         // Трансформеры (ITransformer)
         services.AddTransient<JSONataTransformer>();
