@@ -1,0 +1,4 @@
+[submodule "src/mssql-cdc"]
+	path = src/mssql-cdc
+	url = https://serv-gitlab.constr.kbp/docsvision/common-usage-solutions/db-changes-tracker/mssql-cdc
+	branch = master
