@@ -7,7 +7,29 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
+void AddAllAppConfigurationFiles(ConfigurationManager config)
+{
+    var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+    
+    if (currentPath == null)
+        return;
+
+    var allConfigurationFiles = Directory.GetFiles(currentPath, "*.customsettings.json", SearchOption.AllDirectories);
+
+    if (allConfigurationFiles.Length == 0)
+        Console.WriteLine($"No custom configuration files were found in the applcation directory ({currentPath}).");
+    
+    foreach (var configurationFile in allConfigurationFiles)
+    {
+        config.AddJsonFile(configurationFile, optional: false, reloadOnChange: true);
+        Console.WriteLine($"Added custom configuration file: {configurationFile}");
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
+AddAllAppConfigurationFiles(builder.Configuration);
 
 builder.Services.AddWindowsService();
 
