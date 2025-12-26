@@ -34,10 +34,7 @@ public static class StructuredLoggingExtensions
             .ReadFrom.Configuration(configuration)
             .CreateLogger();
 
-        services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.AddSerilog(dispose: true);
-        });
+        services.AddSerilog();
 
         return services;
     }
