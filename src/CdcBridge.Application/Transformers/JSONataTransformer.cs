@@ -38,7 +38,7 @@ using Jsonata.Net.Native; // или другая реализация JSONata
 ///   - name: "AnalyticsTransformer"
 ///     type: "JSONataTransformer"
 ///     parameters:
-///       expression: |
+///       transformation: |
 ///         {
 ///           "userId": data.new.id,
 ///           "displayName": data.new.firstName,
@@ -53,7 +53,7 @@ using Jsonata.Net.Native; // или другая реализация JSONata
 /// </example>
 public class JSONataTransformer : ITransformer
 {
-    record JSONataTransformerParameters(string Expression);
+    record JSONataTransformerParameters(string transformation);
     
     /// <summary>
     /// Инициализирует новый экземпляр трансформера JSONata.
@@ -93,7 +93,7 @@ public class JSONataTransformer : ITransformer
 
         try
         {
-            var expression = jsonataParams.Expression;
+            var expression = jsonataParams.transformation;
             
             // Сериализуем TrackedChange в JSON строку
             var inputJson = SerializeTrackedChange(trackedChange);
@@ -154,7 +154,7 @@ public class JSONataTransformer : ITransformer
 
     private static string GetExpressionPreview(JSONataTransformerParameters parameters)
     { 
-        var expr = parameters.Expression;
+        var expr = parameters.transformation;
         return expr?.Length > 50 ? expr.Substring(0, 47) + "..." : expr ?? "null";
     }
 }

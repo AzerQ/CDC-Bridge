@@ -18,24 +18,18 @@ public class StateTransitionFilter(IMemoryCache cache) : IFilter
         if (trackedChange.ChangeType != ChangeType.Update)
             return false;
 
-        var oldState = trackedChange.Data.Old?.GetProperty(filterParams.Column).GetString();
-        var newState = trackedChange.Data.New?.GetProperty(filterParams.Column).GetString();
+        var oldState = trackedChange.Data.Old?.GetProperty(filterParams.column).GetString();
+        var newState = trackedChange.Data.New?.GetProperty(filterParams.column).GetString();
         
         if (oldState is null || newState is null)
             return false;
 
         var stateTransitionChecker =
-            cache.GetOrCreate(filterParams.Expression, entry => new StateTransitionChecker((string)entry.Key))!;
+            cache.GetOrCreate(filterParams.expression, entry => new StateTransitionChecker((string)entry.Key))!;
         
         bool isMatch = stateTransitionChecker.TransitionAllowed(oldState, newState);
         return isMatch;
     }
 }
 
-public class StateTransitionFilterParams
-{
-    public required string Column { get; set; }
-
-    public required string Expression { get; set; }
-    
-}
+public record StateTransitionFilterParams(string column, string expression);
