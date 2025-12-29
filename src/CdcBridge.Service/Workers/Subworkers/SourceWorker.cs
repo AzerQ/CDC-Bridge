@@ -1,4 +1,5 @@
-﻿using CdcBridge.Configuration.Models;
+﻿using System.Text.Json.Serialization;
+using CdcBridge.Configuration.Models;
 using CdcBridge.Core.Abstractions;
 using CdcBridge.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,7 @@ public class SourceWorker(
                     
                     logger.LogInformation("SourceWorker for '{InstanceName}' buffered {Count} new changes. Last row label: {Label}",
                         trackingInstanceConfig.Name, changes.Count, newLastRowLabel);
+                    logger.LogDebug("Changes data: {@changes}", changes);
                 }
             }
             catch (Exception ex)

@@ -95,6 +95,7 @@ public class ReceiverWorker(
                             logger.LogWarning("Failed to send change {ChangeId} to receiver {ReceiverName}. Attempt {AttemptCount}. Error: {Error}",
                                 bufferedChange.Id, receiverConfig.Name, deliveryStatus?.AttemptCount ?? 0 + 1, error);
                         }
+                        logger.LogDebug("Sent data: {@SentData}", change.Data.TransformedData);
                     }
                     catch (Exception ex)
                     {

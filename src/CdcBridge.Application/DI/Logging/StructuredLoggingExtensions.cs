@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace CdcBridge.Logging;
+namespace CdcBridge.Application.DI.Logging;
 
 /// <summary>
 /// Методы расширения для настройки структурированного логирования в SQLite.
@@ -32,6 +32,7 @@ public static class StructuredLoggingExtensions
         // Создаем логгер с настройками из конфигурации
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
+            .Destructure.With<JsonElementDestructuringPolicy>()
             .CreateLogger();
 
         services.AddSerilog();

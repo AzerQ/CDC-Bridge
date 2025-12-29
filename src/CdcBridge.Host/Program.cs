@@ -1,11 +1,11 @@
 using CdcBridge.Application.DI;
 using CdcBridge.Host.Api.Services;
 using CdcBridge.Host.Middleware;
-using CdcBridge.Logging;
 using CdcBridge.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using CdcBridge.Application.DI.Logging;
 
 void AddAllAppConfigurationFiles(ConfigurationManager config)
 {
