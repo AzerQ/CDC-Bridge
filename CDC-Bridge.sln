@@ -33,6 +33,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdcBridge.Host", "src\CdcBr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsSqlCdc", "src\mssql-cdc\src\MsSqlCdc\MsSqlCdc.csproj", "{A7A8302D-7314-45D2-BE61-1019F6DB9818}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{6B5836DF-8425-44C3-9D42-D4A74BA5B491}"
+	ProjectSection(SolutionItems) = preProject
+		documentation\architecture\CDC-Bridge_Current_Architecture.md = documentation\architecture\CDC-Bridge_Current_Architecture.md
+		documentation\architecture\CDC-Bridge_Production_Architecture.md = documentation\architecture\CDC-Bridge_Production_Architecture.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
